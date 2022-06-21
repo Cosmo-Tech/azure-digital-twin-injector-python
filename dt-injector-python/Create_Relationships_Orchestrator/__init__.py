@@ -24,7 +24,6 @@ def main(req):
   
   service_client = BlobServiceClient.from_connection_string(CONNECTION_STRING)
   client_input = service_client.get_container_client(INPUT_CONTAINER_NAME)
-  client_history = service_client.get_container_client(HISTORY_CONTAINER_NAME)
   queue_client = QueueClient.from_connection_string(CONNECTION_STRING, OUTPUT_QUEUE_NAME)
   # Set up Base64 encoding function
   queue_client.message_encode_policy = BinaryBase64EncodePolicy()
@@ -69,11 +68,6 @@ def main(req):
 
       # create a message in the output queue fo each element of the json array
       for i in blob_json_array:
-
-        # code to modify json (replace afterwards)
-        metadata=i["$metadata.$model"] #get the value of $metadata.$model
-        i["$metadata"]={"$model":metadata} #copy it in a new property $metadata that contains an object $model
-        i.pop("$metadata.$model") #delete the old property $metadata.$model
         
         # convert each element to a json formatted string message
         message=json.dumps(i)
@@ -84,12 +78,5 @@ def main(req):
 
       # move the processed csv file from the input container to the history container 
       General_Functions.move_blob(service_client,ACCOUNT_NAME,INPUT_CONTAINER_NAME+"/"+SPECIFIC_CONTAINER,HISTORY_CONTAINER_NAME+"/"+SPECIFIC_CONTAINER,f)
-      break #delete this line afterwards
-
-  #for reset (delete this line afterwards)
-  # files = General_Functions.ls_files(client_history,SPECIFIC_CONTAINER, recursive=True)
-  # for rf in files:
-  #   if(rf.endswith(".csv")) : 
-  #     General_Functions.move_blob(service_client,ACCOUNT_NAME,HISTORY_CONTAINER_NAME+"/"+SPECIFIC_CONTAINER,INPUT_CONTAINER_NAME+"/"+SPECIFIC_CONTAINER,rf)
   return
 

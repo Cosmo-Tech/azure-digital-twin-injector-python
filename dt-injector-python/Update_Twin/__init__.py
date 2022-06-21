@@ -2,7 +2,6 @@ import logging
 import json
 import azure.functions as func
 import os
-import uuid
 from azure.identity import DefaultAzureCredential
 from azure.digitaltwins.core import DigitalTwinsClient
 from azure.identity._credentials.imds import ImdsCredential
@@ -26,6 +25,6 @@ def main(msg: func.QueueMessage) -> None:
                 "value": value
             })
             service_client.update_component(digital_twin_id, component_name, patch)
-    
+    logging.info("twin updated")
 
 

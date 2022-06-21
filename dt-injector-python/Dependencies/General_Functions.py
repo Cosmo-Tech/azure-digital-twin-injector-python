@@ -45,10 +45,8 @@ def read_blob_into_json_array(container_client, blob_name):
 
   # Convert the DataFrame to JSON string
   json_string=df.to_json (orient='records')
-  logging.error(json_string)
   # Convert the JSON string to JSON object
   json_array= json.loads(json_string)
-  logging.error(json_array)
   # Process the json correctly if there are values in map or object format 
   for element in json_array:
     for key,value in element.items():
@@ -56,5 +54,4 @@ def read_blob_into_json_array(container_client, blob_name):
         element[key]=element[key].replace(";",",")
         element_to_json=json.loads(element[key])
         element[key]=element_to_json
-  logging.error(json_array)
   return json_array

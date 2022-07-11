@@ -1,4 +1,5 @@
 import logging
+import sys
 import azure.functions as func
 from azure.storage.blob import BlobServiceClient
 from azure.storage.queue import (
@@ -9,6 +10,19 @@ import json
 from ..Dependencies import General_Functions
 
 def main(req):
+  # logger = logging.getLogger()
+  # logger.setLevel(logging.INFO)
+  # formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s', 
+  #                               '%m-%d-%Y %H:%M:%S')
+  # stdout_handler = logging.StreamHandler(sys.stdout)
+  # stdout_handler.setLevel(logging.DEBUG)
+  # stdout_handler.setFormatter(formatter)
+  # file_handler = logging.FileHandler('logUpdateRelationship.log')
+  # file_handler.setLevel(logging.WARNING)
+  # file_handler.setFormatter(formatter)
+  # logger.addHandler(file_handler)
+  # logger.addHandler(stdout_handler)
+
   # Connection string to the azure storage account 
   CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=yousrastorageaccount;AccountKey=x0CS2CIE8PEkQL1VkYcZNl7yb3gfTnokfMF6WZSXqtUq9+aLVUoEkIN3pIDs8MQXEOois8NKhyw7+AStFZtYVw==;EndpointSuffix=core.windows.net"
   # Name of the container containing all the input blobs 

@@ -1,4 +1,5 @@
 import logging
+import sys
 import azure.functions as func
 from azure.storage.blob import BlobServiceClient
 from azure.storage.queue import (
@@ -9,6 +10,17 @@ import json
 from ..Dependencies import General_Functions
 
 def main(req):
+  httplogger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
+  httplogger.setLevel(logging.WARNING)
+  # loggerOrchestrator = logging.getLogger()
+  # loggerOrchestrator.setLevel(logging.INFO)
+  # formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s', 
+  #                               '%m-%d-%Y %H:%M:%S')
+  # file_handler = logging.FileHandler('logDeleteTwin.log')
+  # file_handler.setLevel(logging.INFO)
+  # file_handler.setFormatter(formatter)
+  # loggerOrchestrator.addHandler(file_handler)
+
   # Connection string to the azure storage account 
   CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=yousrastorageaccount;AccountKey=x0CS2CIE8PEkQL1VkYcZNl7yb3gfTnokfMF6WZSXqtUq9+aLVUoEkIN3pIDs8MQXEOois8NKhyw7+AStFZtYVw==;EndpointSuffix=core.windows.net"
   # Name of the container containing all the input blobs 
@@ -38,50 +50,54 @@ def main(req):
   try:
       action = req_body["action"]
       if(action != "Delete") :
-        logging.error("The action in request body doesn't match the triggered function : Delete_Twins_Orchestrator")
+        logging.exception("The action in request body doesn't match the triggered function : Delete_Twins_Orchestrator")
         return
   except:
       response = "action is missing in request body"
-      logging.error(response)
+      logging.exception(response)
       return 
 
   try:
       element = req_body["element"]
       if(element != "Twin") :
-        logging.error("The element in request body doesn't match the triggered function : Delete_Twins_Orchestrator")
+        logging.exception("The element in request body doesn't match the triggered function : Delete_Twins_Orchestrator")
         return
   except:
       response = "element is missing in request body"
-      logging.error(response)
+      logging.exception(response)
       return
+  try :
+    # list all the files in the input container
+    files = General_Functions.ls_files(client_input,SPECIFIC_CONTAINER, recursive=True)
+    for f in files:
 
-  # list all the files in the input container
-  files = General_Functions.ls_files(client_input,SPECIFIC_CONTAINER, recursive=True)
-  for f in files:
+      # process each blob in the input container that is a csv file
+      if(f.endswith(".csv")) : 
 
-    # process each blob in the input container that is a csv file
-    if(f.endswith(".csv")) : 
-
-      # read blob content into a json array        
-      blob_json_array=General_Functions.read_blob_into_json_array(client_input,SPECIFIC_CONTAINER+'/'+f)
+        # read blob content into a json array        
+        blob_json_array=General_Functions.read_blob_into_json_array(client_input,SPECIFIC_CONTAINER+'/'+f)
 
 
-      # create a message in the output queue fo each element of the json array
-      for i in blob_json_array:
+        # create a message in the output queue fo each element of the json array
+        for i in blob_json_array:
 
-        # code to modify json (replace afterwards)
-        metadata=i["$metadata.$model"] #get the value of $metadata.$model
-        i["$metadata"]={"$model":metadata} #copy it in a new property $metadata that contains an object $model
-        i.pop("$metadata.$model") #delete the old property $metadata.$model
-        
-        # convert each element to a json formatted string message
-        message=json.dumps(i)
+          # code to modify json (replace afterwards)
+          metadata=i["$metadata.$model"] #get the value of $metadata.$model
+          i["$metadata"]={"$model":metadata} #copy it in a new property $metadata that contains an object $model
+          i.pop("$metadata.$model") #delete the old property $metadata.$model
+          
+          # convert each element to a json formatted string message
+          message=json.dumps(i)
 
-        # insert the message in the output queue after encoding it
-        message_bytes = message.encode('ascii')
-        queue_client.send_message(queue_client.message_encode_policy.encode(content=message_bytes))
+          # insert the message in the output queue after encoding it
+          message_bytes = message.encode('ascii')
+          queue_client.send_message(queue_client.message_encode_policy.encode(content=message_bytes))
+          logging.info("The message: %s has been sent",message)
 
-      # move the processed csv file from the input container to the history container 
-      General_Functions.move_blob(service_client,ACCOUNT_NAME,INPUT_CONTAINER_NAME+"/"+SPECIFIC_CONTAINER,HISTORY_CONTAINER_NAME+"/"+SPECIFIC_CONTAINER,f)
+        logging.info("All the messages have been sent!")
+        # move the processed csv file from the input container to the history container 
+        General_Functions.move_blob(service_client,ACCOUNT_NAME,INPUT_CONTAINER_NAME+"/"+SPECIFIC_CONTAINER,HISTORY_CONTAINER_NAME+"/"+SPECIFIC_CONTAINER,f)
+  except Exception as e:
+    logging.exception(e)
   return
 

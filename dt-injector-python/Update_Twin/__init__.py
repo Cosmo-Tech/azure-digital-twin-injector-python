@@ -19,12 +19,15 @@ def main(msg: func.QueueMessage) :
 
     patch=[]
     for key,value in json_message.items():
-        if(key!="$id" and key!="$metadata") : 
+
+        # can not update the id and metadata of the twin, and only updates the twin's properties that have not null values
+        if(key!="$id" and key!="$metadata" and value is not None) : 
             patch.append({
                 "op": "replace",
                 "path": "/"+key,
                 "value": value
             })
+
 
     # try to update the twin in the ADT, and if there is no exception a Dev Log is displayed
     service_client.update_digital_twin(digital_twin_id, patch)

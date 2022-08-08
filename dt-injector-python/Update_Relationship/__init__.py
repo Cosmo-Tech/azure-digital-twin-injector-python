@@ -21,12 +21,15 @@ def main(msg: func.QueueMessage):
 
     patch=[]
     for key,value in json_message.items():
-        if(key!="$sourceId" and key!="$targetId" and key!= "$relationshipName") : 
+        # can not update the source id, target id or name of the relationship, and only updates the relationship's properties that have not null values
+        if(key!="$sourceId" and key!="$targetId" and key!= "$relationshipName" and value is not None) : 
             patch.append({
                 "op": "replace",
                 "path": "/"+key,
                 "value": value
             })
+
+    logging.info(patch)
 
     # try to update the relationship in the ADT, and if there is no exception a Dev Log is displayed
     service_client.update_relationship(

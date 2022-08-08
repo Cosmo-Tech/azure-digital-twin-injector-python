@@ -1,6 +1,5 @@
 import logging
 import sys
-import time
 import azure.functions as func
 from azure.storage.blob import BlobServiceClient
 from azure.storage.queue import (
@@ -8,19 +7,12 @@ from azure.storage.queue import (
            BinaryBase64EncodePolicy
     )
 import json
-from ..Dependencies import General_Functions
+from Dependencies import General_Functions
 
 def main(req):
+  
   httplogger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
   httplogger.setLevel(logging.WARNING)
-  # logger = logging.getLogger()
-  # logger.setLevel(logging.INFO)
-  # formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s', 
-  #                               '%m-%d-%Y %H:%M:%S')
-  # file_handler = logging.FileHandler('logTest.log')
-  # file_handler.setLevel(logging.INFO)
-  # file_handler.setFormatter(formatter)
-  # logger.addHandler(file_handler)
 
   # Connection string to the azure storage account 
   CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=yousrastorageaccount;AccountKey=x0CS2CIE8PEkQL1VkYcZNl7yb3gfTnokfMF6WZSXqtUq9+aLVUoEkIN3pIDs8MQXEOois8NKhyw7+AStFZtYVw==;EndpointSuffix=core.windows.net"
@@ -51,26 +43,25 @@ def main(req):
   try:
       action = req_body["action"]
       if(action != "Create") :
-        logging.exception("The action in request body doesn't match the triggered function : Create_Twins_Orchestrator")
+        logging.exception("Dev Log: The action in request body doesn't match the triggered function : Create_Twins_Orchestrator")
         return
   except:
-      response = "action is missing in request body"
-      logging.exception(response)
+      logging.exception("Dev Log: Action is missing in request body")
       return 
 
   try:
       element = req_body["element"]
       if(element != "Twin") :
-        logging.exception("The element in request body doesn't match the triggered function : Create_Twins_Orchestrator")
+        logging.exception("Dev Log: The element in request body doesn't match the triggered function : Create_Twins_Orchestrator")
         return
   except:
-      response = "element is missing in request body"
-      logging.exception(response)
+      logging.exception("Dev Log: Element is missing in request body")
       return
 
   try : 
     # list all the files in the input container
     files = General_Functions.ls_files(client_input,SPECIFIC_CONTAINER, recursive=True)
+
     for f in files:
 
       # process each blob in the input container that is a csv file
@@ -83,19 +74,25 @@ def main(req):
         # create a message in the output queue fo each element of the json array
         for i in blob_json_array:
 
-          # code to modify json (replace afterwards)
-          metadata=i["$metadata.$model"] #get the value of $metadata.$model
-          i["$metadata"]={"$model":metadata} #copy it in a new property $metadata that contains an object $model
-          i.pop("$metadata.$model") #delete the old property $metadata.$model
+          # modify json 
+
+          # get the value of $metadata.$model
+          metadata=i["$metadata.$model"] 
+          # copy it in a new property $metadata that contains an object $model
+          i["$metadata"]={"$model":metadata} 
+          # delete the old property $metadata.$model
+          i.pop("$metadata.$model") 
           
           # convert each element to a json formatted string message
           message=json.dumps(i)
+          
           # insert the message in the output queue after encoding it
           message_bytes = message.encode('ascii')
           queue_client.send_message(queue_client.message_encode_policy.encode(content=message_bytes))
-          logging.info("The message: %s has been sent",message)
+          logging.info("Dev Log: The message: %s has been sent to %s ",message,OUTPUT_QUEUE_NAME)
 
-        logging.info("All the messages have been sent!")
+        logging.info("Dev Log: All the messages generated from the file %s have been sent to %s",f,OUTPUT_QUEUE_NAME)
+        
         # move the processed csv file from the input container to the history container 
         General_Functions.move_blob(service_client,ACCOUNT_NAME,INPUT_CONTAINER_NAME+"/"+SPECIFIC_CONTAINER,HISTORY_CONTAINER_NAME+"/"+SPECIFIC_CONTAINER,f)
   except Exception as e:

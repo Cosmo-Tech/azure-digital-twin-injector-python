@@ -9,16 +9,6 @@ from azure.identity._credentials.imds import ImdsCredential
 
 
 def main(msg: func.QueueMessage):
-    httplogger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
-    httplogger.setLevel(logging.WARNING)
-    # logger = logging.getLogger()
-    # logger.setLevel(logging.INFO)
-    # formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s', 
-    #                                 '%m-%d-%Y %H:%M:%S')
-    # file_handler = logging.FileHandler('logDeleteTwin.log')
-    # file_handler.setLevel(logging.INFO)
-    # file_handler.setFormatter(formatter)
-    # logger.addHandler(file_handler)
 
     message_body = msg.get_body().decode('utf-8')
     json_message = json.loads(message_body)
@@ -26,13 +16,12 @@ def main(msg: func.QueueMessage):
     credential = DefaultAzureCredential()
     service_client = DigitalTwinsClient(url, credential)
     digital_twin_id =json_message["$id"]
+
+    # try to delete the twin in the ADT, and if there is no exception a Dev Log is displayed
+    service_client.delete_digital_twin(digital_twin_id)
+    logging.info("Dev Log: The following twin has been deleted successfully: %s",json_message)
+
     
-    try:
-        service_client.delete_digital_twin(digital_twin_id)
-        logging.info("The following twin has been deleted successfully: %s",json_message)
-    except Exception as e:
-        logging.exception("The twin corresponding to the json message : %s couldn't be deleted due to the following exception :",json_message)
-        logging.exception(e)
     
 
 

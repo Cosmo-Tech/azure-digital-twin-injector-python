@@ -1,6 +1,13 @@
 {
   "version": "2.0",
   "logging": {
+    "fileLoggingMode": "always",
+    "logLevel": {
+      "default": "Information",
+      "Host.Results": "Error",
+      "Function": "Trace",
+      "Host.Aggregator": "Trace"
+    },
     "applicationInsights": {
       "samplingSettings": {
         "isEnabled": true,
@@ -11,6 +18,11 @@
   "extensionBundle": {
     "id": "Microsoft.Azure.Functions.ExtensionBundle",
     "version": "[2.*, 3.0.0)"
+  },
+  "extensions": {
+    "queues": {
+      "maxDequeueCount": 2
+    }
   },
   "functionTimeout": "06:00:00"
 }

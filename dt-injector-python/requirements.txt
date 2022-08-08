@@ -7,3 +7,4 @@ azure.storage.blob
 azure.storage.queue
 azure.identity
 azure.digitaltwins.core
+pandas

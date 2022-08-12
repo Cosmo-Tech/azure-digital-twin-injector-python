@@ -1,5 +1,6 @@
 import logging
 import sys
+import os
 import azure.functions as func
 from azure.storage.blob import BlobServiceClient
 from azure.storage.queue import (
@@ -15,13 +16,13 @@ def main(req):
   httplogger.setLevel(logging.WARNING)
 
   # Connection string to the azure storage account 
-  CONNECTION_STRING = "DefaultEndpointsProtocol=https;AccountName=yousrastorageaccount;AccountKey=x0CS2CIE8PEkQL1VkYcZNl7yb3gfTnokfMF6WZSXqtUq9+aLVUoEkIN3pIDs8MQXEOois8NKhyw7+AStFZtYVw==;EndpointSuffix=core.windows.net"
+  CONNECTION_STRING = os.environ["CONNECTION_STRING"]
   # Name of the container containing all the input blobs 
   INPUT_CONTAINER_NAME = "input-files"
   # Name of the container containing the blobs that have already been processed
   HISTORY_CONTAINER_NAME = "history-files"
   # Name of the azure storage account 
-  ACCOUNT_NAME = "yousrastorageaccount"
+  ACCOUNT_NAME = os.environ["ACCOUNT_NAME"]
   # Name of the output queue containing the messages produced by the orchestrator function
   OUTPUT_QUEUE_NAME = "update-twin-queue"
   # Name of the container containing the specific blobs used in this function

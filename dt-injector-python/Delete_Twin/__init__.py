@@ -10,18 +10,15 @@ from azure.identity._credentials.imds import ImdsCredential
 
 def main(msg: func.QueueMessage):
 
-    message_body = msg.get_body().decode('utf-8')
+    message_body = msg.get_body().decode("utf-8")
     json_message = json.loads(message_body)
     url = os.environ["AZURE_ADT_URL"]
     credential = DefaultAzureCredential()
     service_client = DigitalTwinsClient(url, credential)
-    digital_twin_id =json_message["$id"]
+    digital_twin_id = json_message["$id"]
 
     # try to delete the twin in the ADT, and if there is no exception a Dev Log is displayed
     service_client.delete_digital_twin(digital_twin_id)
-    logging.info("Dev Log: The following twin has been deleted successfully: %s",json_message)
-
-    
-    
-
-
+    logging.info(
+        "Dev Log: The following twin has been deleted successfully: %s", json_message
+    )

@@ -10,24 +10,23 @@ from azure.identity._credentials.imds import ImdsCredential
 
 def main(msg: func.QueueMessage):
 
-    message_body = msg.get_body().decode('utf-8')
-    json_message = json.loads(message_body.replace("'",'"'))
+    message_body = msg.get_body().decode("utf-8")
+    json_message = json.loads(message_body.replace("'", '"'))
     url = os.environ["AZURE_ADT_URL"]
     credential = DefaultAzureCredential()
     service_client = DigitalTwinsClient(url, credential, logging_enable=True)
-    
-    relationshipId=json_message["$relationshipName"]+"-"+json_message["$sourceId"]+"-"+json_message["$targetId"]
+
+    relationshipId = (
+        json_message["$relationshipName"]
+        + "-"
+        + json_message["$sourceId"]
+        + "-"
+        + json_message["$targetId"]
+    )
 
     # try to delete the relationship in the ADT, and if there is no exception a Dev Log is displayed
-    service_client.delete_relationship(
-        json_message["$sourceId"],
-        relationshipId
+    service_client.delete_relationship(json_message["$sourceId"], relationshipId)
+    logging.info(
+        "Dev Log: The following relationship has been deleted successfully: %s",
+        json_message,
     )
-    logging.info("Dev Log: The following relationship has been deleted successfully: %s",json_message)
-
-
-    
-
-    
-
-

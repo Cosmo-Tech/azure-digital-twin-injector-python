@@ -1,28 +1,21 @@
 {
-  "version": "2.0",
-  "logging": {
-    "fileLoggingMode": "always",
-    "logLevel": {
-      "default": "Information",
-      "Host.Results": "Error",
-      "Function": "Trace",
-      "Host.Aggregator": "Trace"
+    "version": "2.0",
+    "logging": {
+        "fileLoggingMode": "always",
+        "logLevel": {
+            "default": "Information",
+            "Host.Results": "Error",
+            "Function": "Trace",
+            "Host.Aggregator": "Trace",
+        },
+        "applicationInsights": {
+            "samplingSettings": {"isEnabled": true, "excludedTypes": "Request"}
+        },
     },
-    "applicationInsights": {
-      "samplingSettings": {
-        "isEnabled": true,
-        "excludedTypes": "Request"
-      }
-    }
-  },
-  "extensionBundle": {
-    "id": "Microsoft.Azure.Functions.ExtensionBundle",
-    "version": "[2.*, 3.0.0)"
-  },
-  "extensions": {
-    "queues": {
-      "maxDequeueCount": 2
-    }
-  },
-  "functionTimeout": "06:00:00"
+    "extensionBundle": {
+        "id": "Microsoft.Azure.Functions.ExtensionBundle",
+        "version": "[2.*, 3.0.0)",
+    },
+    "extensions": {"queues": {"maxDequeueCount": 2}},
+    "functionTimeout": "06:00:00",
 }

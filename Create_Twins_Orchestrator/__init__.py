@@ -14,13 +14,13 @@ def main(req):
     httplogger.setLevel(logging.WARNING)
 
     # Connection string to the azure storage account
-    CONNECTION_STRING = os.environ["CONNECTION_STRING"]
+    CONNECTION_STRING = os.environ["AzureWebJobsStorage"]
     # Name of the container containing all the input blobs
     INPUT_CONTAINER_NAME = "input-files"
     # Name of the container containing the blobs that have already been processed
     HISTORY_CONTAINER_NAME = "history-files"
     # Name of the azure storage account
-    ACCOUNT_NAME = os.environ["ACCOUNT_NAME"]
+    ACCOUNT_NAME = os.environ["storageAccountName"]
     # Name of the output queue containing the messages produced by the orchestrator function
     OUTPUT_QUEUE_NAME = "create-twin-queue"
     # Name of the container containing the specific blobs used in this function

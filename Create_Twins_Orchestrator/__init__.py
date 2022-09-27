@@ -1,10 +1,12 @@
 import logging
 import sys
 import os
+import json
+import copy
+
 import azure.functions as func
 from azure.storage.blob import BlobServiceClient
 from azure.storage.queue import QueueClient, BinaryBase64EncodePolicy
-import json
 from Dependencies import General_Functions
 
 
@@ -64,6 +66,7 @@ def main(req):
         return
 
     try:
+        logging.info("Dev Log: Create twin starting.")
         # list all the files in the input container
         files = General_Functions.ls_files(
             client_input, SPECIFIC_CONTAINER, recursive=True
@@ -80,19 +83,31 @@ def main(req):
                 )
 
                 # create a message in the output queue fo each element of the json array
-                for i in blob_json_array:
+                for row in blob_json_array:
 
                     # modify json
 
                     # get the value of $metadata.$model
-                    metadata = i["$metadata.$model"]
+                    metadata = row["$metadata.$model"]
                     # copy it in a new property $metadata that contains an object $model
-                    i["$metadata"] = {"$model": metadata}
+                    row["$metadata"] = {"$model": metadata}
                     # delete the old property $metadata.$model
-                    i.pop("$metadata.$model")
+                    row.pop("$metadata.$model")
+
+                    # manage empty field and map-like columns
+                    new_row = copy.deepcopy(row)
+                    for j in row:
+                        if not row[j]:
+                            new_row.pop(j)
+                        if '.' in j:
+                            map_split = j.split('.')
+                            if map_split[0] not in new_row:
+                                new_row[map_split[0]] = {}
+                            new_row[map_split[0]][map_split[1]] = row[j]
+                            new_row.pop(j)
 
                     # convert each element to a json formatted string message
-                    message = json.dumps(i)
+                    message = json.dumps(new_row)
 
                     # insert the message in the output queue after encoding it
                     message_bytes = message.encode("ascii")

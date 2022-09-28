@@ -94,20 +94,8 @@ def main(req):
                     # delete the old property $metadata.$model
                     row.pop("$metadata.$model")
 
-                    # manage empty field and map-like columns
-                    new_row = copy.deepcopy(row)
-                    for j in row:
-                        if not row[j]:
-                            new_row.pop(j)
-                        if '.' in j:
-                            map_split = j.split('.')
-                            if map_split[0] not in new_row:
-                                new_row[map_split[0]] = {}
-                            new_row[map_split[0]][map_split[1]] = row[j]
-                            new_row.pop(j)
-
                     # convert each element to a json formatted string message
-                    message = json.dumps(new_row)
+                    message = json.dumps(row)
 
                     # insert the message in the output queue after encoding it
                     message_bytes = message.encode("ascii")

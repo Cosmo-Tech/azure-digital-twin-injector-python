@@ -1,3 +1,26 @@
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fgithub.com%2FCosmo-Tech%2Fazure-digital-twin-injector-python%2Fblob%2Fmaster%2Fdeploy%2FARM_injector_group.json)
+
+# dt-injector - Digital twin csv injector
+
+dtInjector is a group of Azure function app that manage (Create, Update, Delete) twins ans relations into an Azure Digital Twin instance from csv files. it simplifies feeding data into a digital twin.
+
+# How to install
+
+## Prerequisites
+You must have a resourceGroup to install the function on. You can create one with the command:
+```
+az create group -l <location> -n <resourceGroupName>
+```
+
+## Create resources
+Use the Azure button above to acces the specific Azure installation wizard or use Azure CLI.
+```
+az deployment group create
+```
+[https://learn.microsoft.com/en-us/cli/azure/deployment/group?view=azure-cli-latest#az-deployment-group-create]
+
+
+# How to run
 1. In order to run the DT Injector, we need the URL of the orchestrator function we want to execute. In order to retrieve the function url, go to Azure Portal, then to Functions and select the name of the function and click on Get Function Url (function key).
 
 2. You should have already stored the csv files you want to use as an input in the correct storage in Azure : create-twins storage, update-twins storage etc.

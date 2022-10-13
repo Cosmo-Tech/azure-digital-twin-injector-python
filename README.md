@@ -6,6 +6,8 @@ dtInjector is a group of Azure function app that manage (Create, Update, Delete)
 
 # How to install
 
+Run the install.sh script or follow the instructions below
+
 ## Prerequisites
 You must have a resourceGroup to install the function on. You can create one with the command:
 ```
@@ -19,6 +21,10 @@ az deployment group create
 ```
 [https://learn.microsoft.com/en-us/cli/azure/deployment/group?view=azure-cli-latest#az-deployment-group-create]
 
+Download the artifact.zip from releases, and then push source to the function with the commande below:
+```
+az functionapp deployment source config-zip -g <resourceGroupName> -n <functionName> --src artifact.zip
+```
 
 # How to run
 1. In order to run the DT Injector, we need the URL of the orchestrator function we want to execute. In order to retrieve the function url, go to Azure Portal, then to Functions and select the name of the function and click on Get Function Url (function key).

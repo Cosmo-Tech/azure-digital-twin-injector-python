@@ -28,13 +28,6 @@
                 "description": "Name of the destination Digital Twins."
             }
         },
-        "packageAddress": {
-            "type": "string",
-            "defaultValue": "https://github.com/Cosmo-Tech/azure-digital-twin-injector-python/releases/download/v1.0.0/artifact.zip",
-            "metadata": {
-                "description": "URL of the Azure function package to be deployed - IMPORTANT : pick the URL from the latest release"
-            }
-        },
         "roleGuid": {
             "type": "string",
             "defaultValue": "[newGuid()]"
@@ -43,7 +36,7 @@
     "variables": {
         "azureDigitalTwinDataOwner": "[resourceId('Microsoft.Authorization/roleDefinitions/','bcd981a7-7f74-457b-83e1-cceb9e632ffe')]",
         "hostingPlanName": "[concat('hpn-', resourceGroup().name)]",
-        "storageAccountName": "[replace(concat('s', parameters('name')),'-','')]"
+        "storageAccountName": "[toLower(replace(concat('s', parameters('name')),'-',''))]"
     },
     "resources": [
       {
@@ -96,7 +89,7 @@
                         },
                         {
                             "name": "FUNCTIONS_EXTENSION_VERSION",
-                            "value": "~3"
+                            "value": "~4"
                         },
                         {
                             "name": "FUNCTIONS_WORKER_RUNTIME",
@@ -108,15 +101,15 @@
                         },
                         {
                             "name": "storageAccountName",
-                            "value": "variables('storageAccountName')"
+                            "value": "[variables('storageAccountName')]"
                         },
                         {
                             "name": "WEBSITE_RUN_FROM_PACKAGE",
-                            "value": "[parameters('packageAddress')]"
+                            "value": "1"
                         }
-                    ]
+                    ],
+                    "linuxFxVersion": "python|3.9"
                 },
-                "linuxFxVersion": "PYTHON|3.9",
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
             }
         },

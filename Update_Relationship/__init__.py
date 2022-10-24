@@ -33,7 +33,7 @@ def main(msg: func.QueueMessage):
             and key != "$relationshipName"
             and value is not None
         ):
-            patch.append({"op": "replace", "path": "/" + key, "value": value})
+            patch.append({"op": "add", "path": "/" + key, "value": value})
 
     logging.info(patch)
 

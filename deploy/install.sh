@@ -1,3 +1,5 @@
+VERSION='v1.0.1'
+
 read -p "location ? [westeurope]: " location
 location=${location:-westeurope}
 
@@ -13,8 +15,9 @@ read -p "Digital Twins resource group ? (required): " digitalTwinsResourceGroup
 read -p "Digital Twins Name ?: " digitalTwinsName
 [[ -z $digitalTwinsName ]] && echo "Digital Twins name must be set!" && exit 1
 
-read -p "Dt-injector version ? [v1.0.0]: " dtInjectorPackageVersion
-dtInjectorPackageVersion=${dtInjectorPackageVersion:-v1.0.0}
+read -p "Dt-injector version ? [${VERSION}]: " dtInjectorPackageVersion
+dtInjectorPackageVersion=${dtInjectorPackageVersion:-$VERSION}
+
 
 dtInjectorPackage="https://github.com/Cosmo-Tech/azure-digital-twin-injector-python/releases/download/${dtInjectorPackageVersion}/artifact.zip"
 

@@ -55,8 +55,12 @@ def read_blob_into_json_array(container_client, blob_name):
     # Process the json correctly if there are values in map or object format
     for element in json_array:
         for key, value in element.items():
+            # condition on 'CriteriaFormula is specifec for asset
+            # this field contain condition formula which mustn't be convert to json
+            # TODO use DTDL to convert to expected type
             if (
                 type(element[key]) == str
+                and key != 'CriteriaFormula'
                 and element[key].startswith("{")
                 and element[key].endswith("}")
             ):

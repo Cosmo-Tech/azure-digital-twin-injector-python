@@ -26,8 +26,12 @@ echo "Downloading dtinjector package..." && \
 wget -O artifact.zip $dtInjectorPackage && \
 
 # create resource group azure
-echo "Creating Azure resource group..." &&\
-az group create --location $location -n $resourceGroupName && \
+if [[ "$(az group exists -g $resourceGroupName)" == "true" ]]; then
+    echo  "Using existing Azure resource group"
+else
+    echo "Creating Azure resource group..." &&\
+    az group create --location $location -n $resourceGroupName
+fi
 
 # install ARM (storage, service plan, function app)
 echo "Installing ARM on $resourceGroupName..." && \

@@ -6,10 +6,13 @@ dtInjector is a group of Azure function app that manage (Create, Update, Delete)
 
 # How to install
 
-Run the install.sh script or follow the instructions below
+Run the install.sh in the deploy folder.
+
+# How to manual install
+Follow the instructions below
 
 ## Prerequisites
-You must have a resourceGroup to install the function on. You can create one with the command:
+You must have a resourceGroup to install the function on. You can create one with the follonwing command or use an already existing one.
 ```
 az create group -l <location> -n <resourceGroupName>
 ```

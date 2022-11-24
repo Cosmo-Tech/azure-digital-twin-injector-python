@@ -13,14 +13,14 @@ from ..config import configuration
 
 def orchestrator_function(context: df.DurableOrchestrationContext):
     service_client = BlobServiceClient.from_connection_string(
-        configuration.get("azureWebJobsStorage")
+        configuration["azureWebJobsStorage"]
     )
     client_input = service_client.get_container_client(
-        configuration.get("inputContainerName")
+        configuration["inputContainerName"]
     )
 
     acts = []
-    acts_data = sorted(configuration.get("activities"), key=lambda a: a.get("order", 99))
+    acts_data = sorted(configuration["activities"], key=lambda a: a.get("order", 99))
     for act_data in acts_data:
         context.set_custom_status(f"Starting {act_data['activityName']}")
         files = ls_files(client_input, act_data.containerName, recursive=True)

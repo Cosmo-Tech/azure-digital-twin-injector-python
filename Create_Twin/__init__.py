@@ -10,7 +10,7 @@ from ..config import configuration
 
 def main(msg: func.QueueMessage):
 
-    url = configuration.get("digitalTwinUrl")
+    url = configuration["digitalTwinUrl"]
     credential = DefaultAzureCredential()
     service_client = DigitalTwinsClient(url, credential, logging_enable=True)
 

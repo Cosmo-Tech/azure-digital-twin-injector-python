@@ -1,11 +1,8 @@
 import logging
 import json
 import azure.functions as func
-import os
-import sys
 from azure.identity import DefaultAzureCredential
 from azure.digitaltwins.core import DigitalTwinsClient
-from azure.identity._credentials.imds import ImdsCredential
 from ..config import configuration
 
 
@@ -13,9 +10,9 @@ def main(msg: func.QueueMessage):
 
     message_body = msg.get_body().decode("utf-8")
     json_message = json.loads(message_body.replace("'", '"'))
-    url = configuration.get("digitalTwinUrl")
+    url = configuration["digitalTwinUrl"]
     credential = DefaultAzureCredential()
-    service_client = DigitalTwinsClient(url, credential, logging_enable=True)
+    # service_client = DigitalTwinsClient(url, credential, logging_enable=True)
 
     relationshipId = (
         json_message["$relationshipName"]
@@ -26,9 +23,9 @@ def main(msg: func.QueueMessage):
     )
 
     # try to upsert the relationship in the ADT, and if there is no exception a Dev Log is displayed
-    service_client.upsert_relationship(
-        json_message["$sourceId"], relationshipId, json_message
-    )
+    # service_client.upsert_relationship(
+    #     json_message["$sourceId"], relationshipId, json_message
+    # )
     logging.info(
         "Dev Log: The following relationship has been created successfully: %s",
         json_message,

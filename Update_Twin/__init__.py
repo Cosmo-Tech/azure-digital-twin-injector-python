@@ -11,7 +11,7 @@ def main(msg: func.QueueMessage):
 
     message_body = msg.get_body().decode("utf-8")
     json_message = json.loads(message_body)
-    url = configuration.get("digitalTwinUrl")
+    url = configuration["digitalTwinUrl"]
     credential = DefaultAzureCredential()
     service_client = DigitalTwinsClient(url, credential)
     digital_twin_id = json_message["$id"]

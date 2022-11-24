@@ -6,13 +6,14 @@ import sys
 from azure.identity import DefaultAzureCredential
 from azure.digitaltwins.core import DigitalTwinsClient
 from azure.identity._credentials.imds import ImdsCredential
+from ..config import configuration
 
 
 def main(msg: func.QueueMessage):
 
     message_body = msg.get_body().decode("utf-8")
     json_message = json.loads(message_body.replace("'", '"'))
-    url = os.environ["DIGITAL_TWIN_URL"]
+    url = configuration.get("digitalTwinUrl")
     credential = DefaultAzureCredential()
     service_client = DigitalTwinsClient(url, credential, logging_enable=True)
 

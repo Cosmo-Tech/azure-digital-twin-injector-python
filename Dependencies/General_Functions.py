@@ -60,7 +60,7 @@ def read_blob_into_json_array(container_client, blob_name):
             # TODO use DTDL to convert to expected type
             if (
                 type(element[key]) == str
-                and key != 'CriteriaFormula'
+                and key != "CriteriaFormula"
                 and element[key].startswith("{")
                 and element[key].endswith("}")
             ):

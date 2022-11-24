@@ -2,11 +2,9 @@
   "scriptFile": "__init__.py",
   "bindings": [
     {
-      "name": "msg",
-      "type": "queueTrigger",
-      "direction": "in",
-      "queueName": "create-relationship-queue",
-      "connection": "AzureWebJobsStorage"
+      "name": "name",
+      "type": "activityTrigger",
+      "direction": "in"
     }
   ]
 }

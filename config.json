@@ -1,0 +1,11 @@
+{
+    "inputContainerName": "input-files",
+    "historyContainerName": "history-files",
+    "activities": [
+        {
+            "order": 1,
+            "activityName": "Create_Relationship",
+            "containerName": "create-storage/create-relationships"
+        }
+    ]
+}

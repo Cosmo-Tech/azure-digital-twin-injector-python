@@ -1,17 +1,16 @@
 import logging
 import json
-import os
 import copy
 
 import azure.functions as func
 from azure.identity import DefaultAzureCredential
 from azure.digitaltwins.core import DigitalTwinsClient
-from azure.identity._credentials.imds import ImdsCredential
+from ..config import configuration
 
 
 def main(msg: func.QueueMessage):
 
-    url = os.environ["DIGITAL_TWIN_URL"]
+    url = configuration.get("digitalTwinUrl")
     credential = DefaultAzureCredential()
     service_client = DigitalTwinsClient(url, credential, logging_enable=True)
 
@@ -19,14 +18,19 @@ def main(msg: func.QueueMessage):
     json_message = json.loads(message_body)
     digital_twin_id = json_message["$id"]
 
+    # Rename metadata model key
+    metadata = json_message["$metadata.$model"]
+    json_message["$metadata"] = {"$model": metadata}
+    json_message.pop("$metadata.$model")
+
     # manage empty field and map-like columns
     new_msg = copy.deepcopy(json_message)
     for j in json_message:
-        if json_message[j] in (None, ''):
+        if json_message[j] in (None, ""):
             new_msg.pop(j)
             continue
-        if '.' in j:
-            map_split = j.split('.')
+        if "." in j:
+            map_split = j.split(".")
             if map_split[0] not in new_msg:
                 new_msg[map_split[0]] = {}
             new_msg[map_split[0]][map_split[1]] = json_message[j]

@@ -6,6 +6,36 @@
             "order": 1,
             "activityName": "Create_Relationship",
             "containerName": "create-storage/create-relationships"
+        },
+        {
+            "order": 2,
+            "activityName": "Create_Twin",
+            "containerName": "create-storage/create-twins"
+        },
+        {
+            "order": 3,
+            "activityName": "Delete_Relationship",
+            "containerName": "delete-storage/delete-relationships"
+        },
+        {
+            "order": 4,
+            "activityName": "Delete_Twin",
+            "containerName": "delete-storage/delete-twins"
+        },
+        {
+            "order": 5,
+            "activityName": "Delete_Twin",
+            "containerName": "create-storage/create-relationships"
+        },
+        {
+            "order": 6,
+            "activityName": "Update_Relationship",
+            "containerName": "update-storage/update-relationships"
+        },
+        {
+            "order": 7,
+            "activityName": "Update_Twin",
+            "containerName": "update-storage/update-twins"
         }
     ]
 }

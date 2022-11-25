@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 class Configuration:
-    env_fields = ["azureWebJobsStorage", "storageAccountName", "digitalTwinUrl"]
+    env_fields = ["AzureWebJobsStorage", "storageAccountName", "digitalTwinUrl"]
 
     def __init__(self):
         self.data = {}

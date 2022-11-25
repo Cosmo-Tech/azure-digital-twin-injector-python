@@ -1,15 +1,12 @@
 import logging
 import json
-import azure.functions as func
 from azure.identity import DefaultAzureCredential
 from azure.digitaltwins.core import DigitalTwinsClient
 from ..config import configuration
 
 
-def main(msg: func.QueueMessage):
-
-    message_body = msg.get_body().decode("utf-8")
-    json_message = json.loads(message_body.replace("'", '"'))
+def main(msg: str):
+    json_message = json.loads(msg)
     url = configuration["digitalTwinUrl"]
     credential = DefaultAzureCredential()
     service_client = DigitalTwinsClient(url, credential, logging_enable=True)
@@ -36,7 +33,7 @@ def main(msg: func.QueueMessage):
     logging.info(patch)
 
     # try to update the relationship in the ADT, and if there is no exception a Dev Log is displayed
-    service_client.update_relationship(json_message["$sourceId"], relationshipId, patch)
+    # service_client.update_relationship(json_message["$sourceId"], relationshipId, patch)
     logging.info(
         "Dev Log: The following relationship has been updated successfully: %s",
         json_message,

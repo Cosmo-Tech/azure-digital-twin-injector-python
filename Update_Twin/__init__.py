@@ -1,16 +1,13 @@
 import logging
 import json
-import azure.functions as func
 from azure.identity import DefaultAzureCredential
 from azure.digitaltwins.core import DigitalTwinsClient
 
 from ..config import configuration
 
 
-def main(msg: func.QueueMessage):
-
-    message_body = msg.get_body().decode("utf-8")
-    json_message = json.loads(message_body)
+def main(msg: str):
+    json_message = json.loads(msg)
     url = configuration["digitalTwinUrl"]
     credential = DefaultAzureCredential()
     service_client = DigitalTwinsClient(url, credential)
@@ -29,7 +26,7 @@ def main(msg: func.QueueMessage):
             patch.append({"op": "add", "path": "/" + key, "value": value})
 
     # try to update the twin in the ADT, and if there is no exception a Dev Log is displayed
-    service_client.update_digital_twin(digital_twin_id, patch)
+    # service_client.update_digital_twin(digital_twin_id, patch)
     logging.info(
         "Dev Log: The following twin has been updated successfully: %s", json_message
     )

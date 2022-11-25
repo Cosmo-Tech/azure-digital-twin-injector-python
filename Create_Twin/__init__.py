@@ -2,20 +2,17 @@ import logging
 import json
 import copy
 
-import azure.functions as func
 from azure.identity import DefaultAzureCredential
 from azure.digitaltwins.core import DigitalTwinsClient
 from ..config import configuration
 
 
-def main(msg: func.QueueMessage):
-
+def main(msg: str):
+    json_message = json.loads(msg)
     url = configuration["digitalTwinUrl"]
     credential = DefaultAzureCredential()
     service_client = DigitalTwinsClient(url, credential, logging_enable=True)
 
-    message_body = msg.get_body().decode("utf-8")
-    json_message = json.loads(message_body)
     digital_twin_id = json_message["$id"]
 
     # Rename metadata model key
@@ -37,7 +34,7 @@ def main(msg: func.QueueMessage):
             new_msg.pop(j)
 
     # try to upsert the twin in the ADT, and if there is no exception a Dev Log is displayed
-    created_twin = service_client.upsert_digital_twin(digital_twin_id, new_msg)
+    # created_twin = service_client.upsert_digital_twin(digital_twin_id, new_msg)
     logging.info(
         "Dev Log: The following twin has been created successfully: %s", created_twin
     )

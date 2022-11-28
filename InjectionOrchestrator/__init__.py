@@ -21,8 +21,8 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
     )
 
     acts = []
-    logging.info("acts are %s", configuration["activities"])
-    acts_data = sorted(configuration["activities"], key=lambda a: a.get("order", 99))
+    input_acts = context.get_input().get("activities") or configuration["activities"]
+    acts_data = sorted(input_acts, key=lambda a: a.get("order", 99))
     for act_data in acts_data:
         context.set_custom_status(f"Starting {act_data['activityName']}")
         files = ls_files(client_input, act_data["containerName"], recursive=True)
@@ -39,9 +39,9 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
                 acts.append(act)
                 # move_blob(
                 #     service_client,
-                #     settings.storageAccountName,
-                #     settings.inputContainerName + "/" + act_data.containerName,
-                #     settings.historyContainerName + "/" + act_data.containerName,
+                #     configuration["storageAccountName"],
+                #     configuration["inputContainerName"] + "/" + act_data["containerName"],
+                #     configuration["historyContainerName"] + "/" + act_data["containerName"],
                 #     f,
                 # )
     # return acts

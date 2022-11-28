@@ -21,30 +21,36 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
     )
 
     acts = []
-    input_acts = context.get_input().get("activities") or configuration["activities"]
+    req_input = context.get_input()
+    input_acts = req_input.get("activities", configuration["activities"])
     acts_data = sorted(input_acts, key=lambda a: a.get("order", 99))
     for act_data in acts_data:
-        context.set_custom_status(f"Starting {act_data['activityName']}")
+        context.set_custom_status(f"{act_data['activityName']}")
         files = ls_files(client_input, act_data["containerName"], recursive=True)
         for f in files:
             if not f.endswith(".csv"):
+                logging.debug("Skipping file %s", f)
                 continue
+            context.set_custom_status(f"{f}: {act_data['activityName']}")
+            logging.info("Processing file %s", f)
             blob_json_array = read_blob_into_json_array(
                 client_input, act_data["containerName"] + "/" + f
             )
-            for raw in blob_json_array:
+            for idx, raw in enumerate(blob_json_array):
+                logging.info("Processing line %i: %s", idx, raw)
                 msg = json.dumps(raw)
-                context.set_custom_status(str(act_data.get("activityName")))
                 act = yield context.call_activity(act_data.get("activityName"), msg)
                 acts.append(act)
-                # move_blob(
-                #     service_client,
-                #     configuration["storageAccountName"],
-                #     configuration["inputContainerName"] + "/" + act_data["containerName"],
-                #     configuration["historyContainerName"] + "/" + act_data["containerName"],
-                #     f,
-                # )
-    # return acts
+
+            logging.info("Moving file %s to history container", f)
+            move_blob(
+                service_client,
+                configuration["storageAccountName"],
+                configuration["inputContainerName"] + "/" + act_data["containerName"],
+                configuration["historyContainerName"] + "/" + act_data["containerName"],
+                f,
+            )
+    return acts
 
 
 main = df.Orchestrator.create(orchestrator_function)

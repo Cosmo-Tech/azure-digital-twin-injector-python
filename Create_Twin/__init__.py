@@ -13,6 +13,10 @@ def main(msg: str):
     credential = DefaultAzureCredential()
     service_client = DigitalTwinsClient(url, credential, logging_enable=True)
 
+    if any(key not in ["$id", "$metadata.$model"] for key in json_message.keys()):
+        logging.error("Twin file is missing columns")
+        return {"status": "failed"}
+
     digital_twin_id = json_message["$id"]
 
     # Rename metadata model key
@@ -34,7 +38,12 @@ def main(msg: str):
             new_msg.pop(j)
 
     # try to upsert the twin in the ADT, and if there is no exception a Dev Log is displayed
-    # created_twin = service_client.upsert_digital_twin(digital_twin_id, new_msg)
+    try:
+        created_twin = service_client.upsert_digital_twin(digital_twin_id, new_msg)
+    except Exception as e:
+        logging.error("Failed to create twin %s", digital_twin_id)
+        return {"status": "failed", "$id": digital_twin_id, "message": str(e)}
     logging.info(
         "Dev Log: The following twin has been created successfully: %s", created_twin
     )
+    return {"status": "created", "$id": digital_twin_id}

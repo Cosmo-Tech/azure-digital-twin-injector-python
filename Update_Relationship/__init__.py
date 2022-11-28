@@ -11,12 +11,21 @@ def main(msg: str):
     credential = DefaultAzureCredential()
     service_client = DigitalTwinsClient(url, credential, logging_enable=True)
 
-    relationshipId = (
-        json_message["$relationshipName"]
-        + "-"
-        + json_message["$sourceId"]
-        + "-"
-        + json_message["$targetId"]
+    if any(
+        key not in ["$relationshipName", "$sourceId", "$targetId"]
+        for key in json_message.keys()
+    ):
+        logging.error("Relationship file is missing columns")
+        return {"status": "failed"}
+
+    relationshipId = "".join(
+        [
+            json_message["$relationshipName"],
+            "-",
+            json_message["$sourceId"],
+            "-",
+            json_message["$targetId"],
+        ]
     )
 
     patch = []
@@ -33,8 +42,13 @@ def main(msg: str):
     logging.info(patch)
 
     # try to update the relationship in the ADT, and if there is no exception a Dev Log is displayed
-    # service_client.update_relationship(json_message["$sourceId"], relationshipId, patch)
+    try:
+        service_client.update_relationship(json_message["$sourceId"], relationshipId, patch)
+    except Exception as e:
+        logging.error("Failed to update relationship %s", relationshipId)
+        return {"status": "failed", "$id": relationshipId, "message": str(e)}
     logging.info(
         "Dev Log: The following relationship has been updated successfully: %s",
         json_message,
     )
+    return {"status": "updated", "$id": relationshipId}

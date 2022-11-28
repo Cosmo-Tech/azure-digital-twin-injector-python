@@ -9,21 +9,35 @@ def main(msg: str):
     json_message = json.loads(msg)
     url = configuration["digitalTwinUrl"]
     credential = DefaultAzureCredential()
-    # service_client = DigitalTwinsClient(url, credential, logging_enable=True)
+    service_client = DigitalTwinsClient(url, credential, logging_enable=True)
 
-    relationshipId = (
-        json_message["$relationshipName"]
-        + "-"
-        + json_message["$sourceId"]
-        + "-"
-        + json_message["$targetId"]
+    if any(
+        key not in ["$relationshipName", "$sourceId", "$targetId"]
+        for key in json_message.keys()
+    ):
+        logging.error("Relationship file is missing columns")
+        return {"status": "failed"}
+
+    relationshipId = "".join(
+        [
+            json_message["$relationshipName"],
+            "-",
+            json_message["$sourceId"],
+            "-",
+            json_message["$targetId"],
+        ]
     )
 
     # try to upsert the relationship in the ADT, and if there is no exception a Dev Log is displayed
-    # service_client.upsert_relationship(
-    #     json_message["$sourceId"], relationshipId, json_message
-    # )
+    try:
+        service_client.upsert_relationship(
+            json_message["$sourceId"], relationshipId, json_message
+        )
+    except Exception as e:
+        logging.error("Failed to create relation %s", relationshipId)
+        return {"status": "failed", "$id": relationshipId, "message": str(e)}
     logging.info(
         "Dev Log: The following relationship has been created successfully: %s",
         json_message,
     )
+    return {"status": "created", "$id": relationshipId}

@@ -8,7 +8,7 @@ from ..config import configuration
 
 def main(msg: str):
     json_message = json.loads(msg)
-    url = configuration["digitalTwinUrl"]
+    url = configuration["DIGITAL_TWIN_URL"]
     credential = DefaultAzureCredential()
     service_client = DigitalTwinsClient(url, credential)
 

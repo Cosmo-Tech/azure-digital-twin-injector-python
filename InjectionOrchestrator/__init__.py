@@ -22,8 +22,7 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
 
     acts = []
     req_input = context.get_input()
-    input_acts = req_input.get("activities", configuration["activities"])
-    acts_data = sorted(input_acts, key=lambda a: a.get("order", 99))
+    acts_data = req_input.get("activities", configuration["activities"])
     for act_data in acts_data:
         context.set_custom_status(f"{act_data['activityName']}")
         files = ls_files(client_input, act_data["containerName"], recursive=True)

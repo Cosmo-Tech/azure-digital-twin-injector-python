@@ -161,54 +161,6 @@
                     "dependsOn": [
                         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
                     ]
-                },
-                {
-                    "type": "queueServices/queues",
-                    "apiVersion": "2022-05-01",
-                    "name": "default/create-relationship-queue",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
-                    ]
-                },
-                {
-                    "type": "queueServices/queues",
-                    "apiVersion": "2022-05-01",
-                    "name": "default/create-twin-queue",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
-                    ]
-                },
-                {
-                    "type": "queueServices/queues",
-                    "apiVersion": "2022-05-01",
-                    "name": "default/delete-relationship-queue",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
-                    ]
-                },
-                {
-                    "type": "queueServices/queues",
-                    "apiVersion": "2022-05-01",
-                    "name": "default/delete-twin-queue",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
-                    ]
-                },
-                {
-                    "type": "queueServices/queues",
-                    "apiVersion": "2022-05-01",
-                    "name": "default/update-relationship-queue",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
-                    ]
-                },
-                {
-                    "type": "queueServices/queues",
-                    "apiVersion": "2022-05-01",
-                    "name": "default/update-twin-queue",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
-                    ]
                 }
             ]
         }

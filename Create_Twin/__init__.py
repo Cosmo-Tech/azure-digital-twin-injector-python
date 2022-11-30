@@ -13,7 +13,7 @@ def main(msg: str):
     credential = DefaultAzureCredential()
     service_client = DigitalTwinsClient(url, credential, logging_enable=True)
 
-    if any(key not in ["$id", "$metadata.$model"] for key in json_message.keys()):
+    if any(key not in json_message for key in ["$id", "$metadata.$model"]):
         logging.error("Twin file is missing columns")
         return {"status": "failed"}
 

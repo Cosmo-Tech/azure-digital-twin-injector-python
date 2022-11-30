@@ -12,8 +12,8 @@ def main(msg: str):
     service_client = DigitalTwinsClient(url, credential, logging_enable=True)
 
     if any(
-        key not in ["$relationshipName", "$sourceId", "$targetId"]
-        for key in json_message.keys()
+        key not in json_message
+        for key in ["$relationshipName", "$sourceId", "$targetId"]
     ):
         logging.error("Relationship file is missing columns")
         return {"status": "failed"}
@@ -43,7 +43,9 @@ def main(msg: str):
 
     # try to update the relationship in the ADT, and if there is no exception a Dev Log is displayed
     try:
-        service_client.update_relationship(json_message["$sourceId"], relationshipId, patch)
+        service_client.update_relationship(
+            json_message["$sourceId"], relationshipId, patch
+        )
     except Exception as e:
         logging.error("Failed to update relationship %s", relationshipId)
         return {"status": "failed", "$id": relationshipId, "message": str(e)}

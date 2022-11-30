@@ -12,8 +12,8 @@ def main(msg: str):
     service_client = DigitalTwinsClient(url, credential, logging_enable=True)
 
     if any(
-        key not in ["$relationshipName", "$sourceId", "$targetId"]
-        for key in json_message.keys()
+        key not in json_message
+        for key in ["$relationshipName", "$sourceId", "$targetId"]
     ):
         logging.error("Relationship file is missing columns")
         return {"status": "failed"}

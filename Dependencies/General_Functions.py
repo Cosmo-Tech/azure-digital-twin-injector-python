@@ -1,8 +1,7 @@
 import os
 import json
-import pandas as pd
+import csv
 from io import StringIO
-import logging
 
 
 def ls_files(client, path, recursive=False):
@@ -46,25 +45,19 @@ def read_blob_into_json_array(container_client, blob_name):
     downloaded_blob = container_client.download_blob(blob_name)
 
     # Read the csv-like string into DataFrame
-    df = pd.read_csv(StringIO(downloaded_blob.content_as_text()))
-
-    # Convert the DataFrame to JSON string
-    json_string = df.to_json(orient="records")
-    # Convert the JSON string to JSON object
-    json_array = json.loads(json_string)
+    csv_data = csv.DictReader(
+        StringIO(downloaded_blob.content_as_text()), delimiter=";"
+    )
+    data = list(csv_data)
     # Process the json correctly if there are values in map or object format
-    for element in json_array:
+    for element in data:
         for key, value in element.items():
             # condition on 'CriteriaFormula is specifec for asset
             # this field contain condition formula which mustn't be convert to json
             # TODO use DTDL to convert to expected type
-            if (
-                type(element[key]) == str
-                and key != "CriteriaFormula"
-                and element[key].startswith("{")
-                and element[key].endswith("}")
-            ):
-                element[key] = element[key].replace(";", ",")
-                element_to_json = json.loads(element[key])
-                element[key] = element_to_json
-    return json_array
+            if isinstance(element[key], str) and key != "CriteriaFormula":
+                try:
+                    element[key] = json.loads(value.replace(";", ","))
+                except json.JSONDecodeError:
+                    pass
+    return data

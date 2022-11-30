@@ -7,4 +7,3 @@ azure-functions-durable
 azure.storage.blob
 azure.identity
 azure.digitaltwins.core
-pandas

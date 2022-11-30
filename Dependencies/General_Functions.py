@@ -45,9 +45,7 @@ def read_blob_into_json_array(container_client, blob_name):
     downloaded_blob = container_client.download_blob(blob_name)
 
     # Read the csv-like string into DataFrame
-    csv_data = csv.DictReader(
-        StringIO(downloaded_blob.content_as_text()), delimiter=";"
-    )
+    csv_data = csv.DictReader(StringIO(downloaded_blob.content_as_text()))
     data = list(csv_data)
     # Process the json correctly if there are values in map or object format
     for element in data:

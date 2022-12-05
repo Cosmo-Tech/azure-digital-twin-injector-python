@@ -6,8 +6,12 @@ import azure.durable_functions as df
 
 async def main(req: func.HttpRequest, starter: str) -> func.HttpResponse:
     client = df.DurableOrchestrationClient(starter)
+    try:
+        client_input = req.get_json()
+    except ValueError:
+        client_input = {}
     instance_id = await client.start_new(
-        "InjectionOrchestrator", client_input=req.get_json()
+        "InjectionOrchestrator", client_input=client_input
     )
     logging.info(f"Started injection orchestrator with ID = '{instance_id}'.")
 

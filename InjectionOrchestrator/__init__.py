@@ -1,8 +1,9 @@
 import json
 import logging
+import requests
+
 from azure.storage.blob import BlobServiceClient
 import azure.durable_functions as df
-import requests
 
 from ..Dependencies.General_Functions import (
     ls_files,
@@ -10,6 +11,16 @@ from ..Dependencies.General_Functions import (
     move_blob,
 )
 from ..config import configuration
+
+
+def post_callback(callback_uri: str):
+    """Call callback given in original request
+    """
+    if not callback_uri:
+        return
+    header = {'Content-Type': 'application/json'}
+    requests.post(url=callback_uri, headers=header, data={})
+    logging.info("Callback %s called", callback_uri)
 
 
 def orchestrator_function(context: df.DurableOrchestrationContext):
@@ -50,10 +61,7 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
                 configuration["historyContainerName"] + "/" + act_data["containerName"],
                 f,
             )
-    callback = yield context.call_activity(
-        "WebhookCallback", req_input.get("callBackUri", "")
-    )
-    acts.append(callback)
+    post_callback(req_input.get("callBackUri", ""))
     return acts
 
 

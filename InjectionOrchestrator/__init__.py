@@ -51,7 +51,7 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
                 f,
             )
     callback = yield context.call_activity(
-        "WebhookCallback", req_input.get("callBackUri")
+        "WebhookCallback", req_input.get("callBackUri", "")
     )
     acts.append(callback)
     return acts

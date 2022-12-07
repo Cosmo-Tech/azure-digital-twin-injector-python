@@ -1,6 +1,7 @@
 import os
 import json
 import csv
+import yaml
 from io import StringIO
 
 
@@ -56,6 +57,8 @@ def read_blob_into_json_array(container_client, blob_name):
             if isinstance(element[key], str) and key != "CriteriaFormula":
                 try:
                     element[key] = json.loads(value.replace(";", ","))
+                    continue
                 except json.JSONDecodeError:
                     pass
+            element[key] = yaml.safe_load(value)
     return data

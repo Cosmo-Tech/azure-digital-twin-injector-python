@@ -24,7 +24,6 @@ def post_callback(callback_uri: str):
 
 
 def orchestrator_function(context: df.DurableOrchestrationContext):
-    logging.info(configuration["AzureWebJobsStorage"])
     service_client = BlobServiceClient.from_connection_string(
         configuration["AzureWebJobsStorage"]
     )

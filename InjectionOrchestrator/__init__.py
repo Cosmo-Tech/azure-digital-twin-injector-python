@@ -2,6 +2,7 @@ import json
 import logging
 from azure.storage.blob import BlobServiceClient
 import azure.durable_functions as df
+import requests
 
 from ..Dependencies.General_Functions import (
     ls_files,
@@ -21,7 +22,7 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
     )
 
     acts = []
-    req_input = context.get_input()
+    req_input = context.get_input() or {}
     acts_data = req_input.get("activities", configuration["activities"])
     for act_data in acts_data:
         context.set_custom_status(f"{act_data['activityName']}")
@@ -49,6 +50,9 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
                 configuration["historyContainerName"] + "/" + act_data["containerName"],
                 f,
             )
+    callback = req_input.get("callbackUri")
+    if callback:
+        requests.get(url=callback)
     return acts
 
 

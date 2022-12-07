@@ -50,9 +50,10 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
                 configuration["historyContainerName"] + "/" + act_data["containerName"],
                 f,
             )
-    callback = req_input.get("callBackUri")
-    if callback:
-        requests.get(url=callback)
+    callback = yield context.call_activity(
+        "WebhookCallback", req_input.get("callBackUri")
+    )
+    acts.append(callback)
     return acts
 
 

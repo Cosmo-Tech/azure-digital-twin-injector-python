@@ -100,7 +100,7 @@
                             "value": "[concat('https://',reference(resourceId(parameters('digitalTwinsResourceGroup'), 'Microsoft.DigitalTwins/digitalTwinsInstances', parameters('digitalTwinsName')),'2020-12-01','Full').properties.hostName)]"
                         },
                         {
-                            "name": "storageAccountName",
+                            "name": "STORAGE_ACCOUNT_NAME",
                             "value": "[variables('storageAccountName')]"
                         },
                         {

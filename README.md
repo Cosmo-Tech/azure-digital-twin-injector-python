@@ -2,7 +2,7 @@
 
 # dt-injector - Digital twin csv injector
 
-dtInjector is a group of Azure function app that manage (Create, Update, Delete) twins ans relations into an Azure Digital Twin instance from csv files. it simplifies feeding data into a digital twin.
+dtInjector is a group of Azure function app that manage (Create, Update, Delete) twins and relations into an Azure Digital Twin instance from csv files. it simplifies feeding data into a digital twin.
 
 # How to install
 
@@ -29,18 +29,34 @@ Download the artifact.zip from releases, and then push source to the function wi
 az functionapp deployment source config-zip -g <resourceGroupName> -n <functionName> --src artifact.zip
 ```
 
+## Set application environment
+From the Azure Webapp, go to your Azure function and edit `Settings Configuration`.
+Set the following variables:
+- DIGITAL_TWIN_URL
+- STORAGE_ACCOUNT_NAME
+
 # How to run
-1. In order to run the DT Injector, we need the URL of the orchestrator function we want to execute. In order to retrieve the function url, go to Azure Portal, then to Functions and select the name of the function and click on Get Function Url (function key).
+1. In order to run the DT Injector, we need the URL of the orchestrator function we want to execute. In order to retrieve the function url, go to Azure Portal, then to Functions and select the InjectorEntrypoint and click on Get Function Url (function key).
 
 2. You should have already stored the csv files you want to use as an input in the correct storage in Azure : create-twins storage, update-twins storage etc.
 
 3. After that, you need to send an HTTP request to the function Url that you retrieved with a tool that enables you to do that, like Postman for example.
-The body of the HTTP request needs to specify the action we want to carry out and the element on which it operates. An example of an HTTP request body would be: 
+The body of the HTTP request needs to specify the action we want to carry out and the element on which it operates. 
+You can use default values or specify which activities you want to launch. See `config.json` for the list of all activities.  
+An example of an HTTP request body would be: 
+```json
 {
-"action": "Create",
-"element": "Twin"
+"activities": [
+    {
+        "activityName": "Create_Twin",
+        "containerName": "create-storage/create-twins"
+    },
+    {
+        "activityName": "Create_Relationship",
+        "containerName": "create-storage/create-relationships"
+    },
 } 
-The possible values for action are : Update, Create, Delete. And the possible values for element are : Twin, Relationship
+```
 
 4. You can check the result of the execution on ADT.
 

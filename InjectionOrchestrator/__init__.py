@@ -55,7 +55,7 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
             logging.info("Moving file %s to history container", f)
             move_blob(
                 service_client,
-                configuration["storageAccountName"],
+                configuration["STORAGE_ACCOUNT_NAME"],
                 configuration["inputContainerName"] + "/" + act_data["containerName"],
                 configuration["historyContainerName"] + "/" + act_data["containerName"],
                 f,

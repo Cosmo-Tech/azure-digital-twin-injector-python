@@ -41,7 +41,7 @@ def main(msg: str):
     try:
         created_twin = service_client.upsert_digital_twin(digital_twin_id, new_msg)
     except Exception as e:
-        logging.error("Failed to create twin %s", digital_twin_id)
+        logging.error("Failed to create twin %s: %s", digital_twin_id, str(e))
         return {"status": "failed", "$id": digital_twin_id, "message": str(e)}
     logging.info(
         "Dev Log: The following twin has been created successfully: %s", created_twin

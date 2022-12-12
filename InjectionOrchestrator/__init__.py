@@ -1,69 +1,38 @@
 import json
 import logging
-import requests
 
-from azure.storage.blob import BlobServiceClient
 import azure.durable_functions as df
 
-from ..Dependencies.General_Functions import (
-    ls_files,
-    read_blob_into_json_array,
-    move_blob,
-)
 from ..config import configuration
 
 
-def post_callback(callback_uri: str):
-    """Call callback given in original request"""
-    if not callback_uri:
-        return
-    header = {"Content-Type": "application/json"}
-    requests.post(url=callback_uri, headers=header, data={})
-    logging.info("Callback %s called", callback_uri)
-
-
 def orchestrator_function(context: df.DurableOrchestrationContext):
-    service_client = BlobServiceClient.from_connection_string(
-        configuration["AzureWebJobsStorage"]
-    )
-    client_input = service_client.get_container_client(
-        configuration["inputContainerName"]
-    )
-
     acts = []
     req_input = context.get_input() or {}
     acts_data = req_input.get("activities", configuration["activities"])
+    acts_data = yield context.call_activity("List_Files", json.dumps(acts_data))
     for act_data in acts_data:
         context.set_custom_status(f"{act_data['activityName']}")
-        files = ls_files(client_input, act_data["containerName"], recursive=True)
-        for f in files:
+        for f in act_data.get("files", []):
             if not f.endswith(".csv"):
                 logging.debug("Skipping file %s", f)
                 continue
             context.set_custom_status(f"{f}: {act_data['activityName']}")
             logging.info("Processing file %s", f)
-            blob_json_array = read_blob_into_json_array(
-                client_input, act_data["containerName"] + "/" + f
+            blob_json_array = yield context.call_activity(
+                "Read_File", act_data["containerName"] + "/" + f
             )
-            for idx, raw in enumerate(blob_json_array):
-                logging.info("Processing line %i: %s", idx, raw)
-                msg = json.dumps(raw)
-                act = yield context.call_activity(act_data.get("activityName"), msg)
+            for raw in blob_json_array:
+                act = yield context.call_activity(
+                    act_data.get("activityName"), json.dumps(raw)
+                )
                 acts.append(act)
-
-    context.set_custom_status("Moving files to history containers")
-    for act_data in acts_data:
-        files = ls_files(client_input, act_data["containerName"], recursive=True)
-        for f in files:
-            logging.info("Moving file %s to history container", f)
-            move_blob(
-                service_client,
-                configuration["STORAGE_ACCOUNT_NAME"],
-                configuration["inputContainerName"] + "/" + act_data["containerName"],
-                configuration["historyContainerName"] + "/" + act_data["containerName"],
-                f,
+            yield context.call_activity(
+                "Archive_File",
+                json.dumps({"file": f, "container": act_data["containerName"]}),
             )
-    post_callback(req_input.get("callBackUri", ""))
+
+    yield context.call_activity("Web_Callback", (req_input.get("callBackUri", "")))
     return acts
 
 

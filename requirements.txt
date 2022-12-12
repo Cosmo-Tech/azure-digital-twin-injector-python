@@ -8,4 +8,3 @@ azure.storage.blob
 azure.identity
 azure.digitaltwins.core
 requests
-PyYAML

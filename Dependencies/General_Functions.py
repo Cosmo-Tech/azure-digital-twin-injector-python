@@ -1,7 +1,7 @@
 import os
 import json
 import csv
-import yaml
+from ast import literal_eval
 from io import StringIO
 
 
@@ -54,11 +54,18 @@ def read_blob_into_json_array(container_client, blob_name):
             # condition on 'CriteriaFormula is specifec for asset
             # this field contain condition formula which mustn't be convert to json
             # TODO use DTDL to convert to expected type
-            if isinstance(element[key], str) and key != "CriteriaFormula":
+            if (
+                value.startswith("{")
+                and value.endswith("}")
+                and key != "CriteriaFormula"
+            ):
                 try:
                     element[key] = json.loads(value.replace(";", ","))
                     continue
                 except json.JSONDecodeError:
                     pass
-            element[key] = yaml.safe_load(value)
+            try:
+                element[key] = literal_eval(value)
+            except Exception:
+                pass
     return data

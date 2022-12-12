@@ -14,11 +14,10 @@ from ..config import configuration
 
 
 def post_callback(callback_uri: str):
-    """Call callback given in original request
-    """
+    """Call callback given in original request"""
     if not callback_uri:
         return
-    header = {'Content-Type': 'application/json'}
+    header = {"Content-Type": "application/json"}
     requests.post(url=callback_uri, headers=header, data={})
     logging.info("Callback %s called", callback_uri)
 
@@ -52,6 +51,8 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
                 act = yield context.call_activity(act_data.get("activityName"), msg)
                 acts.append(act)
 
+    for act_data in acts_data:
+        for f in files:
             logging.info("Moving file %s to history container", f)
             move_blob(
                 service_client,

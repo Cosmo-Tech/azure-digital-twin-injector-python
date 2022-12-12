@@ -32,7 +32,7 @@ def main(msg: str):
     try:
         service_client.delete_relationship(json_message["$sourceId"], relationshipId)
     except Exception as e:
-        logging.error("Failed to delete relationship %s", relationshipId)
+        logging.error("Failed to delete relationship %s: %s", relationshipId, str(e))
         return {"status": "failed", "$id": relationshipId, "message": str(e)}
     logging.info(
         "Dev Log: The following relationship has been deleted successfully: %s",

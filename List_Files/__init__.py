@@ -1,12 +1,26 @@
 import logging
 import json
-from ..config import configuration
+import os
+
 from azure.storage.blob import BlobServiceClient
 
+from ..config import configuration
 
-from ..Dependencies.General_Functions import (
-    ls_files
-)
+
+def ls_files(client, path, recursive=False):
+    """
+    Lists files (blobs) under a path, optionally recursively inside the client's container
+    """
+    if not path == "" and not path.endswith("/"):
+        path += "/"
+
+    blob_iter = client.list_blobs(name_starts_with=path)
+    files = []
+    for blob in blob_iter:
+        relative_path = os.path.relpath(blob.name, path)
+        if recursive or "/" not in relative_path:
+            files.append(relative_path)
+    return files
 
 
 def main(msg: str):

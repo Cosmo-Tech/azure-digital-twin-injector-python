@@ -25,7 +25,7 @@ def main(msg: str):
     try:
         service_client.delete_digital_twin(digital_twin_id)
     except Exception as e:
-        logging.error("Failed to delete twin %s", digital_twin_id)
+        logging.error("Failed to delete twin %s: %s", digital_twin_id, str(e))
         return {"status": "failed", "$id": digital_twin_id, "message": str(e)}
     logging.info(
         "Dev Log: The following twin has been deleted successfully: %s", json_message

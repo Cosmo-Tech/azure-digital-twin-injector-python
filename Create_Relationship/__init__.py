@@ -34,7 +34,7 @@ def main(msg: str):
             json_message["$sourceId"], relationshipId, json_message
         )
     except Exception as e:
-        logging.error("Failed to create relation %s", relationshipId)
+        logging.error("Failed to create relation %s: %s", relationshipId, str(e))
         return {"status": "failed", "$id": relationshipId, "message": str(e)}
     logging.info(
         "Dev Log: The following relationship has been created successfully: %s",

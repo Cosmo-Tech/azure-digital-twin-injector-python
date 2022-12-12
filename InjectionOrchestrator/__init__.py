@@ -51,7 +51,9 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
                 act = yield context.call_activity(act_data.get("activityName"), msg)
                 acts.append(act)
 
+    context.set_custom_status("Moving files to history containers")
     for act_data in acts_data:
+        files = ls_files(client_input, act_data["containerName"], recursive=True)
         for f in files:
             logging.info("Moving file %s to history container", f)
             move_blob(

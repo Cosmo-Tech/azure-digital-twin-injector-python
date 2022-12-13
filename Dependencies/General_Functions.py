@@ -6,6 +6,7 @@ import pandas as pd
 from azure.storage.queue import QueueClient
 from azure.core.exceptions import ResourceNotFoundError
 
+
 def ls_files(client, path, recursive=False):
     """
     Lists files (blobs) under a path, optionally recursively inside the client's container
@@ -47,7 +48,7 @@ def read_blob_into_json_array(container_client, blob_name):
     downloaded_blob = container_client.download_blob(blob_name)
 
     # Read the csv-like string into DataFrame
-    df = pd.read_csv(StringIO(downloaded_blob.content_as_text()), na_values="")
+    df = pd.read_csv(StringIO(downloaded_blob.content_as_text()), na_filter=False)
 
     # Convert the DataFrame to JSON string
     json_string = df.to_json(orient="records")

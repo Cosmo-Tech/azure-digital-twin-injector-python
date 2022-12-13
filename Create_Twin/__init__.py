@@ -6,7 +6,6 @@ import copy
 import azure.functions as func
 from azure.identity import DefaultAzureCredential
 from azure.digitaltwins.core import DigitalTwinsClient
-from azure.identity._credentials.imds import ImdsCredential
 
 
 def main(msg: func.QueueMessage):

@@ -1,11 +1,9 @@
 import logging
-import sys
 import json
 import azure.functions as func
 import os
 from azure.identity import DefaultAzureCredential
 from azure.digitaltwins.core import DigitalTwinsClient
-from azure.identity._credentials.imds import ImdsCredential
 
 
 def main(msg: func.QueueMessage):

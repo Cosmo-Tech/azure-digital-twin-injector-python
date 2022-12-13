@@ -4,6 +4,7 @@ from azure.storage.blob import BlobServiceClient
 from azure.storage.queue import QueueClient, BinaryBase64EncodePolicy
 import json
 from Dependencies import General_Functions
+import requests
 
 
 def main(req):
@@ -118,4 +119,8 @@ def main(req):
                 )
     except Exception as e:
         logging.exception(e)
+    if req_body.get("callBackUri"):
+        General_Functions.wait_end_of_queue(queue_client)
+        header = {"Content-Type": "application/json"}
+        requests.post(url=req_body.get("callBackUri"), headers=header, data={})
     return

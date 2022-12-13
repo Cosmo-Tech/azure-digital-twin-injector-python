@@ -3,6 +3,13 @@ import json
 from io import StringIO
 from ast import literal_eval
 from csv import DictReader
+from datetime import datetime
+import time
+import configparser
+import sys
+import math
+from azure.storage.queue import QueueClient
+from azure.core.exceptions import ResourceNotFoundError
 
 
 def ls_files(client, path, recursive=False):
@@ -73,3 +80,24 @@ def read_blob_into_json_array(container_client, blob_name):
             except Exception:
                 pass
     return data
+
+
+def wait_end_of_queue(queue_client: QueueClient):
+    WAIT_STEP = 3
+    while True:
+        while True:
+            try:
+                properties = queue_client.get_queue_properties()
+                break
+            except ResourceNotFoundError:
+                time.sleep(WAIT_STEP)
+        count = properties.approximate_message_count
+        if count == 0:
+            # second wait to be sure
+            time.sleep(WAIT_STEP)
+            properties = queue_client.get_queue_properties()
+            count = properties.approximate_message_count
+            if count != 0:
+                continue
+            return
+        time.sleep(WAIT_STEP)

@@ -8,3 +8,4 @@ azure.storage.queue
 azure.identity
 azure.digitaltwins.core
 requests
+pandas

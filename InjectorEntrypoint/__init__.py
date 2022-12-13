@@ -12,7 +12,7 @@ from ..utils.list_container import ls_files
 async def main(req: func.HttpRequest, starter: str) -> func.HttpResponse:
     client = df.DurableOrchestrationClient(starter)
     try:
-        input_data = req.get_json()
+        input_data = req.get_json() or {}
     except ValueError:
         input_data = {}
     input_data["activities"] = (

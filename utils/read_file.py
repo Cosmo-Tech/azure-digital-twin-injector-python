@@ -3,10 +3,6 @@ import csv
 from ast import literal_eval
 from io import StringIO
 
-from azure.storage.blob import BlobServiceClient
-
-from ..config import configuration
-
 
 def read_blob_into_json_array(container_client, blob_name):
     """
@@ -39,13 +35,3 @@ def read_blob_into_json_array(container_client, blob_name):
             except Exception:
                 pass
     return data
-
-
-def main(file: str):
-    service_client = BlobServiceClient.from_connection_string(
-        configuration["AzureWebJobsStorage"]
-    )
-    client_input = service_client.get_container_client(
-        configuration["inputContainerName"]
-    )
-    return read_blob_into_json_array(client_input, file)

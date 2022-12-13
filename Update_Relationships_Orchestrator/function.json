@@ -10,6 +10,11 @@
         "get",
         "post"
       ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "$return"
     }
   ]
 }

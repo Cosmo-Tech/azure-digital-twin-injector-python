@@ -9,12 +9,13 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
     input_data = context.get_input() or {}
     for act_data in input_data.get("activities", []):
         context.set_custom_status(f"{act_data['activityName']}")
-        for row in act_data.get("blob", []):
-            logging.info("Processing element of $id %s", row.get("$id"))
-            act = yield context.call_activity(
-                act_data.get("activityName"), json.dumps(row)
-            )
-            acts.append(act)
+        for blob in act_data.get("blobs", []):
+            for row in blob:
+                logging.info("Processing element of $id %s", row.get("$id"))
+                act = yield context.call_activity(
+                    act_data.get("activityName"), json.dumps(row)
+                )
+                acts.append(act)
         for f in act_data.get("files"):
             yield context.call_activity(
                 "Archive_File",

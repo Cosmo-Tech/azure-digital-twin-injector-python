@@ -29,7 +29,7 @@ async def main(req: func.HttpRequest, starter: str) -> func.HttpResponse:
         input_data["activities"][row]["files"] = ls_files(
             container_client, act_data["containerName"], True
         )
-        input_data["activities"][row]["blob"] = [
+        input_data["activities"][row]["blobs"] = [
             read_blob_into_json_array(
                 container_client, f"{act_data['containerName']}/{f}"
             )

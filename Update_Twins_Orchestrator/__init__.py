@@ -1,7 +1,5 @@
 import logging
-import sys
 import os
-import azure.functions as func
 from azure.storage.blob import BlobServiceClient
 from azure.storage.queue import QueueClient, BinaryBase64EncodePolicy
 import json
@@ -48,7 +46,7 @@ def main(req):
                 "Dev Log: The action in request body doesn't match the triggered function : Update_Twins_Orchestrator"
             )
             return
-    except:
+    except Exception:
         logging.error("Dev Log: Action is missing in request body")
         return
 
@@ -59,7 +57,7 @@ def main(req):
                 "Dev Log: The element in request body doesn't match the triggered function : Update_Twins_Orchestrator"
             )
             return
-    except:
+    except Exception:
         logging.error("Dev Log: Element is missing in request body")
         return
 

@@ -30,17 +30,22 @@ az functionapp deployment source config-zip -g <resourceGroupName> -n <functionN
 ```
 
 # How to run
-1. In order to run the DT Injector, we need the URL of the orchestrator function we want to execute. In order to retrieve the function url, go to Azure Portal, then to Functions and select the name of the function and click on Get Function Url (function key).
+1. In order to run the DT Injector, we need to get the `InjectorEntrypoint` url with default or master code.
 
-2. You should have already stored the csv files you want to use as an input in the correct storage in Azure : create-twins storage, update-twins storage etc.
+2. You should have already stored the csv files you want to use as an input in the correct storage in Azure : create-storage/create-twins, create-storage/update-twins, etc...
 
-3. After that, you need to send an HTTP request to the function Url that you retrieved with a tool that enables you to do that, like Postman for example.
-The body of the HTTP request needs to specify the action we want to carry out and the element on which it operates. An example of an HTTP request body would be: 
-{
-"action": "Create",
-"element": "Twin"
-} 
-The possible values for action are : Update, Create, Delete. And the possible values for element are : Twin, Relationship
+3. After that, you need to send an HTTP request to the `InjectorEntrypoint` function Url that you retrieved with a tool that enables you to do that, like Postman for example.
+The body of the HTTP request should be empty but the URL as a parameter that you should change for each action we want to carry out (remove the code as it is extracted from the request)
+```
+POST https://{myfunc}.azurewebsites.net/orchestrators/{action}?code={mycode}
+```
+The possible values for action are :
+- `Create_Twins`
+- `Create_Relationships`
+- `Delete_Twins`
+- `Delete_Relationships`
+- `Update_Twins`
+- `Update_Relationships`
 
 4. You can check the result of the execution on ADT.
 

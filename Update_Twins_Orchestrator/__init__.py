@@ -33,35 +33,6 @@ def main(req):
     # Set up Base64 encoding function
     queue_client.message_encode_policy = BinaryBase64EncodePolicy()
 
-    # Process the Http request that had triggered the function
-    # the request must have the following form
-    # req_body = {
-    #         "action": "Update",
-    #         "element": "Twin"
-    #     }
-    req_body = req.get_json()
-    try:
-        action = req_body["action"]
-        if action != "Update":
-            logging.error(
-                "Dev Log: The action in request body doesn't match the triggered function : Update_Twins_Orchestrator"
-            )
-            return
-    except Exception:
-        logging.error("Dev Log: Action is missing in request body")
-        return
-
-    try:
-        element = req_body["element"]
-        if element != "Twin":
-            logging.error(
-                "Dev Log: The element in request body doesn't match the triggered function : Update_Twins_Orchestrator"
-            )
-            return
-    except Exception:
-        logging.error("Dev Log: Element is missing in request body")
-        return
-
     try:
         # list all the files in the input container
         files = General_Functions.ls_files(
@@ -119,8 +90,8 @@ def main(req):
                 )
     except Exception as e:
         logging.exception(e)
+    req_body = req.get_json()
     if req_body.get("callBackUri"):
         General_Functions.wait_end_of_queue(queue_client)
-        header = {"Content-Type": "application/json"}
-        requests.post(url=req_body.get("callBackUri"), headers=header, data={})
+        requests.post(url=req_body.get("callBackUri"), json={})
     return

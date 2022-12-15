@@ -17,5 +17,5 @@
         "version": "[2.*, 4.0.0)",
     },
     "extensions": {"queues": {"maxDequeueCount": 2}},
-    "functionTimeout": "-1",
+    "functionTimeout": "00:10:00",
 }

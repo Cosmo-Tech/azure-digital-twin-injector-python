@@ -1,13 +1,16 @@
 import logging
 import os
-from azure.storage.blob import BlobServiceClient
-from azure.storage.queue import QueueClient, BinaryBase64EncodePolicy
 import json
-from Dependencies import General_Functions
 import requests
 
+from azure.storage.blob import BlobServiceClient
+from azure.storage.queue import QueueClient, BinaryBase64EncodePolicy
+import azure.functions as func
 
-def main(req):
+from ..Dependencies import General_Functions
+
+
+def main(req: func.HttpRequest) -> func.HttpResponse:
 
     httplogger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
     httplogger.setLevel(logging.WARNING)
@@ -94,4 +97,4 @@ def main(req):
     if req_body.get("callBackUri"):
         General_Functions.wait_end_of_queue(queue_client)
         requests.post(url=req_body.get("callBackUri"), json={})
-    return
+    return func.HttpResponse("Message queue has been filled", status_code=200)

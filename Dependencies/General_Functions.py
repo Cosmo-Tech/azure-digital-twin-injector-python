@@ -76,19 +76,14 @@ def read_blob_into_json_array(container_client, blob_name):
 def wait_end_of_queue(queue_client: QueueClient):
     WAIT_STEP = 3
     while True:
-        while True:
-            try:
-                properties = queue_client.get_queue_properties()
-                break
-            except ResourceNotFoundError:
-                time.sleep(WAIT_STEP)
+        properties = queue_client.get_queue_properties()
+        count = properties.approximate_message_count
+        if count != 0:
+            time.sleep(WAIT_STEP)
+            continue
+        # Confirm it will not increase again
+        time.sleep(WAIT_STEP)
+        properties = queue_client.get_queue_properties()
         count = properties.approximate_message_count
         if count == 0:
-            # second wait to be sure
-            time.sleep(WAIT_STEP)
-            properties = queue_client.get_queue_properties()
-            count = properties.approximate_message_count
-            if count != 0:
-                continue
             return
-        time.sleep(WAIT_STEP)

@@ -1,11 +1,12 @@
 import logging
 import os
 import json
+import requests
 
 from azure.storage.blob import BlobServiceClient
 from azure.storage.queue import QueueClient, BinaryBase64EncodePolicy
 from Dependencies import General_Functions
-import requests
+import azure.functions as func
 
 
 def main(req):
@@ -33,35 +34,6 @@ def main(req):
     )
     # Set up Base64 encoding function
     queue_client.message_encode_policy = BinaryBase64EncodePolicy()
-
-    # Process the Http request that had triggered the function
-    # the request must have the following form
-    # req_body = {
-    #         "action": "Create",
-    #         "element": "Twin"
-    #     }
-    req_body = req.get_json()
-    try:
-        action = req_body["action"]
-        if action != "Create":
-            logging.exception(
-                "Dev Log: The action in request body doesn't match the triggered function : Create_Twins_Orchestrator"
-            )
-            return
-    except Exception:
-        logging.exception("Dev Log: Action is missing in request body")
-        return
-
-    try:
-        element = req_body["element"]
-        if element != "Twin":
-            logging.exception(
-                "Dev Log: The element in request body doesn't match the triggered function : Create_Twins_Orchestrator"
-            )
-            return
-    except Exception:
-        logging.exception("Dev Log: Element is missing in request body")
-        return
 
     try:
         logging.info("Dev Log: Create twin starting.")
@@ -122,8 +94,9 @@ def main(req):
                 )
     except Exception as e:
         logging.exception(e)
+    req_body = req.get_json()
     if req_body.get("callBackUri"):
         General_Functions.wait_end_of_queue(queue_client)
         header = {"Content-Type": "application/json"}
         requests.post(url=req_body.get("callBackUri"), headers=header, data={})
-    return
+    return func.HttpResponse("Message queue had been filled", status_code=200)

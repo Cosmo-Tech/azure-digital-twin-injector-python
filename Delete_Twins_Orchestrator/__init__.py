@@ -96,5 +96,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     req_body = req.get_json()
     if req_body.get("callBackUri"):
         General_Functions.wait_end_of_queue(queue_client)
-        requests.post(url=req_body.get("callBackUri"), json={})
+        header = {"Content-Type": "application/json"}
+        requests.post(url=req_body.get("callBackUri"), headers=header, data={})
     return func.HttpResponse("Message queue has been filled", status_code=200)

@@ -16,11 +16,10 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
                     act_data.get("activityName"), json.dumps(row)
                 )
                 acts.append(act)
-        for f in act_data.get("files"):
-            yield context.call_activity(
-                "Archive_File",
-                json.dumps({"file": f, "container": act_data["containerName"]}),
-            )
+        # yield context.call_activity(
+        #     "Archive_File",
+        #     json.dumps({"files": act_data.get("files"), "container": act_data["containerName"]}),
+        # )
 
     yield context.call_activity("Web_Callback", (input_data.get("callBackUri", "")))
     return acts

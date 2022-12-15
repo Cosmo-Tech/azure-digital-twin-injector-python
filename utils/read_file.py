@@ -15,12 +15,11 @@ def read_blob_into_json_array(container_client, blob_name):
         StringIO(downloaded_blob.content_as_text()),
         dtype={"InstallationYear": pd.Int64Dtype()},
     )
-    json_array = df.to_dict(orient="records")
 
     # Convert the DataFrame to JSON string
-    # json_data = df.to_json(orient="records")
+    json_data = df.to_json(orient="records")
     # Convert the JSON string to JSON object
-    # json_array = json.loads(json_data)
+    json_array = json.loads(json_data)
     # Process the json correctly if there are values in map or object format
     for element in json_array:
         for key, value in element.items():
@@ -28,8 +27,8 @@ def read_blob_into_json_array(container_client, blob_name):
             # this field contain condition formula which mustn't be convert to json
             # TODO use DTDL to convert to expected type
             if (
-                isinstance(value, str)
-                and key != "CriteriaFormula"
+                key != "CriteriaFormula"
+                and isinstance(value, str)
                 and value.startswith("{")
                 and value.endswith("}")
             ):

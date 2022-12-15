@@ -24,15 +24,16 @@ def move_blob(
 
 
 def main(msg: str):
-    body = json.loads(msg)
     service_client = BlobServiceClient.from_connection_string(
         configuration["AzureWebJobsStorage"]
     )
-    logging.info("Moving file %s to history container", body["file"])
-    move_blob(
-        service_client,
-        configuration["STORAGE_ACCOUNT_NAME"],
-        configuration["inputContainerName"] + "/" + body["container"],
-        configuration["historyContainerName"] + "/" + body["container"],
-        body["file"],
-    )
+    body = json.loads(msg)
+    logging.info("Moving file %s to history container", body["files"])
+    for file in body["files"]:
+        move_blob(
+            service_client,
+            configuration["STORAGE_ACCOUNT_NAME"],
+            configuration["inputContainerName"] + "/" + body["container"],
+            configuration["historyContainerName"] + "/" + body["container"],
+            file,
+        )

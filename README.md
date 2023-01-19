@@ -32,7 +32,13 @@ az functionapp deployment source config-zip -g <resourceGroupName> -n <functionN
 # How to run
 1. In order to run the DT Injector, we need to get the `InjectorEntrypoint` url with default or master code.
 
-2. You should have already stored the csv files you want to use as an input in the correct storage in Azure : create-storage/create-twins, create-storage/update-twins, etc...
+2. You should have already stored your input csv files in the correct Azure storage (depending on the action you want to perform):
+    - create-storage/create-twins
+    - create-storage/create-relationships
+    - update-storage/update-twins
+    - update-storage/update-relationships
+    - delete-storage/delete-twins
+    - delete-storage/delete-relationships
 
 3. After that, you need to send an HTTP request to the `InjectorEntrypoint` function Url that you retrieved with a tool that enables you to do that, like Postman for example.
 The body of the HTTP request should be empty but the URL as a parameter that you should change for each action we want to carry out (remove the code as it is extracted from the request)

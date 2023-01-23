@@ -43,7 +43,7 @@ az functionapp deployment source config-zip -g <resourceGroupName> -n <functionN
 3. After that, you need to send an HTTP request to the `InjectorEntrypoint` function Url that you retrieved with a tool that enables you to do that, like Postman for example.
 The body of the HTTP request should be empty but the URL as a parameter that you should change for each action we want to carry out (remove the code as it is extracted from the request)
 ```
-POST https://{myfunc}.azurewebsites.net/orchestrators/{action}?code={mycode}
+POST https://{myfunc}.azurewebsites.net/api/orchestrators/{action}?code={mycode}
 ```
 The possible values for action are :
 - `Create_Twins`

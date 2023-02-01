@@ -1,33 +1,83 @@
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fgithub.com%2FCosmo-Tech%2Fazure-digital-twin-injector-python%2Fblob%2Fmaster%2Fdeploy%2FARM_injector_group.json)
-
 # dt-injector - Digital twin csv injector
 
 dtInjector is a group of Azure function app that manage (Create, Update, Delete) twins ans relations into an Azure Digital Twin instance from csv files. it simplifies feeding data into a digital twin.
 
 # How to install
 
-Run the install.sh in the deploy folder.
+## Prerequisites
+
+- use a support that runs bash
+- have installed azCli
+- have correct admin rights \**see below for details*
+
+## Install
+
+Log in with azCli:
+```
+az login
+```
+
+Run the install.sh: (This script can be found in the 'deploy' folder.)
+```
+./install.sh
+```
+
+## Description
+
+This script prompt information to run properly:
+- **location**: An Azure cloud location use when creting Azure resources. (Default value: *westeurope*)
+- **function name**: use to name defferent resources. (Default value: *dtInject*)
+    - the Azure function as *"{name}"*
+    - the Azure resource group as *"rg-{name}"* (only if not override after)
+    - the Azure hosting plan as *"hpn-{name}"*
+    - the Azure storage account name as *"s{name}"* (for this one '-' are removed and the whole name is passed to lower case).
+- **resource group name**: use to select the resource group in which the function, service plan and storage will be create. (if it doesn't existe the resource group will be created with this name) (Default value: *rg-{name}*)
+- **Digital Twins resource group**: use to find the ADT that will be the target of the injection function. (required)
+- **Digital Twins Name**: use to find the ADT that will be the target of the injection function. (required)
+
+On exectution, this script will:
+1. Download function source package
+2. Create an Azure resource group (or use the one specified if exist)
+3. Deploy the ARM "ARM_injector_group.json" (found in the deploy folder)
+    1. Create the storage account in the resource group with all necessary containers and queue
+        - **container** input-files
+        - **container** history-files
+        - **queue**     create-twin-queue
+        - **queue**     create-relationship-queue
+        - **queue**     delete-twin-queue
+        - **queue**     delete-relationship-queue
+        - **queue**     update-twin-queue
+        - **queue**     update-relationship-queue
+    2. Create the hosting plan
+        - **sku tier** ElasticPremium
+    3. Create the Azure function
+        - **application setting** AzureWebJobsStorage: containing the connection string to the Azure storage previously created
+        - **application setting** storageAccountName:  containing the name of the Azure storage previously created
+        - **application setting** DIGITAL_TWIN_URL:    containing the target ADT url
+        - **application setting** FUNCTIONS_EXTENSION_VERSION: ~4 (recommended [Azure Functions runtime version](https://learn.microsoft.com/en-us/azure/azure-functions/functions-versions?tabs=v4&pivots=programming-language-python))
+        - **application setting** FUNCTIONS_WORKER_RUNTIME: python
+        - **application setting** WEBSITE_RUN_FROM_PACKAGE: 1 (indicate that the function source are set from a package)
+        - **site configuration**  linuxFxVersion: python|3.9
+    4. Assign to the Azure Function the azureDigitalTwinDataOwner role on ADT
+4. Upload the source package to the azure function
+
+### About rights 
+To be able to run correctly, the user log in must have the right to do all the action above.
+- Create a resource group 
+- Create a storage account
+- Create a hosting plan
+- Create an Azure Function App
+- Assign azureDigitalTwinDataOwner role to ADT
+- Update an Azure Function App
+
 
 # How to manual install
-Follow the instructions below
 
-## Prerequisites
-You must have a resourceGroup to install the function on. You can create one with the follonwing command or use an already existing one.
-```
-az create group -l <location> -n <resourceGroupName>
-```
+To manual install the function, all above step must be done including running the ARM. The ARM can be seen as a complilation of step, so each sub-step can be run separatly.
+Each step and sub-step has a [az cli](https://learn.microsoft.com/en-us/cli/azure/reference-index?view=azure-cli-latest) command linked to it.
 
-## Create resources
-Use the Azure button above to acces the specific Azure installation wizard or use Azure CLI.
-```
-az deployment group create
-```
-[https://learn.microsoft.com/en-us/cli/azure/deployment/group?view=azure-cli-latest#az-deployment-group-create]
+Prerequisites are the same as for the install by script.
 
-Download the artifact.zip from releases, and then push source to the function with the commande below:
-```
-az functionapp deployment source config-zip -g <resourceGroupName> -n <functionName> --src artifact.zip
-```
 
 # How to run
 1. In order to run the DT Injector, we need to get the `InjectorEntrypoint` url with default or master code.
@@ -73,6 +123,6 @@ The results of this query resemble those of the previous one.
 
 6. Always check the queues in the Azure STorage Account linked to the DT Injector, to see if a poison queue has been created. If that is the case, the poison queue will contain all the messages that couldn’t successfully modify the ADT. 
 
+# Technicalities
 
-
-
+* History-files container only hold the last file read. It's not an archive with all processed files.

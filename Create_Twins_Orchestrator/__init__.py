@@ -95,7 +95,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 )
     except Exception as e:
         logging.exception(e)
-    req_body = req.get_json()
+    req_body = req.get_json() if req.get_body() else {}
     if req_body.get("callBackUri"):
         General_Functions.wait_end_of_queue(queue_client)
         header = {"Content-Type": "application/json"}

@@ -28,7 +28,7 @@ def main(msg: func.QueueMessage):
             new_msg[map_split[0]][map_split[1]] = value
             new_msg.pop(j)
 
-    for key, value in new_msg:
+    for key, value in new_msg.items():
         # can not update the id and metadata of the twin, and only updates the twin's properties that have not null values
         if key != "$id" and key != "$metadata":
             if value is not None:
@@ -36,6 +36,7 @@ def main(msg: func.QueueMessage):
             else:
                 patch.append({"op": "remove", "path": "/" + key})
 
+    logging.info(patch)
     # try to update the twin in the ADT, and if there is no exception a Dev Log is displayed
     service_client.update_digital_twin(digital_twin_id, patch)
     logging.info(

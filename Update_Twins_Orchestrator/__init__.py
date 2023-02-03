@@ -37,6 +37,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     queue_client.message_encode_policy = BinaryBase64EncodePolicy()
 
     try:
+        logging.info("Dev Log: Update twin starting.")
         # list all the files in the input container
         files = General_Functions.ls_files(
             client_input, SPECIFIC_CONTAINER, recursive=True
@@ -93,7 +94,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 )
     except Exception as e:
         logging.exception(e)
-    req_body = req.get_json()
+    req_body = req.get_json() if req.get_body() else {}
     if req_body.get("callBackUri"):
         General_Functions.wait_end_of_queue(queue_client)
         header = {"Content-Type": "application/json"}

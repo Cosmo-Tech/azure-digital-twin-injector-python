@@ -32,8 +32,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     header = {"Content-Type": "application/json"}
 
     json_body = req.get_json() if req.get_body() else {}
+    r = None
     try:
         requests.post(url=req_url, headers=header, json=json_body, timeout=1)
     except requests.exceptions.ReadTimeout:
         pass
-    return func.HttpResponse(f"Calling action {action}", status_code=200)
+    return func.HttpResponse(f"Calling action {action}", status_code=202)

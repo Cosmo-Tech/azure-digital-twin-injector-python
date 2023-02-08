@@ -1,5 +1,7 @@
+import logging
 import os
 import json
+import requests
 from io import StringIO
 import time
 import pandas as pd
@@ -23,9 +25,7 @@ def ls_files(client, path, recursive=False):
     return files
 
 
-def move_blob(
-    service_client, account_name, copy_from_container, copy_to_container, blob_name
-):
+def move_blob(service_client, account_name, copy_from_container, copy_to_container, blob_name):
     """
     Moves a blob from a container to another container
     """
@@ -63,27 +63,55 @@ def read_blob_into_json_array(container_client, blob_name):
             # condition on 'CriteriaFormula is specifec for asset
             # this field contain condition formula which mustn't be convert to json
             # TODO use DTDL to convert to expected type
-            if (
-                isinstance(value, str)
-                and key != "CriteriaFormula"
-                and value.startswith("{")
-                and value.endswith("}")
-            ):
+            if (isinstance(value, str) and key != "CriteriaFormula" and value.startswith("{") and value.endswith("}")):
                 element[key] = json.loads(value.replace(";", ","))
     return json_array
 
 
-def wait_end_of_queue(queue_client: QueueClient):
+def wait_end_of_queue_process(conn_str: str, queue_name: str):
+    """Wait loop for queue_name to be empty and check for {queue_name}-poison to not exist or be empty.
+
+    Function will return 0 when queue_name is empty.
+    Function will return 1 if {queue_name}-poison exist and is not empty
+    """
+
     WAIT_STEP = 3
+    queue_client = QueueClient.from_connection_string(conn_str, queue_name)
+    poison_queue_client = QueueClient.from_connection_string(conn_str, f'{queue_name}-poison')
+
+    last_turn = False
     while True:
+        # is poison queue existe and not empty
+        try:
+            properties = poison_queue_client.get_queue_properties()
+            logging.warn(f'poison_queue: {properties.approximate_message_count}')
+            if properties.approximate_message_count != 0:
+                return False
+        except ResourceNotFoundError:
+            pass
+        # is queue empty
         properties = queue_client.get_queue_properties()
-        count = properties.approximate_message_count
-        if count != 0:
+        if properties.approximate_message_count != 0:
+            logging.warn(f'queue: {properties.approximate_message_count}')
             time.sleep(WAIT_STEP)
             continue
-        # Confirm it will not increase again
-        time.sleep(WAIT_STEP)
-        properties = queue_client.get_queue_properties()
-        count = properties.approximate_message_count
-        if count == 0:
-            return
+        # Confirm queue remain empty
+        if not last_turn:
+            last_turn = True
+            time.sleep(WAIT_STEP)
+            continue
+        return True
+
+
+def do_callback(callback_uri: str, msg=None, code=None):
+    header = {"Content-Type": "application/json"}
+    data = {}
+    data['output'] = {}
+    data['statusCode'] = 200
+
+    if msg:
+        data['output'] = {'Message': msg}
+        data['error'] = {'ErrorCode': code, 'Message': msg}
+        data['statusCode'] = 400
+
+    requests.post(url=callback_uri, headers=header, json=data)

@@ -92,7 +92,7 @@ def wait_end_of_queue_process(conn_str: str, queue_name: str):
         # is queue empty
         properties = queue_client.get_queue_properties()
         if properties.approximate_message_count != 0:
-            logging.warn(f'queue: {properties.approximate_message_count}')
+            logging.debug(f'queue: {properties.approximate_message_count}')
             time.sleep(WAIT_STEP)
             continue
         # Confirm queue remain empty

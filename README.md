@@ -126,7 +126,7 @@ The results of this query resemble those of the previous one.
 # How it runs
 
 This project contains a total of 13 functions. They interact as describe in the following schema:
-![image](.images/schema_global)
+![image](.images/schema_global.png)
 
 This create the 6 functions *Create_Twin*, *Create_Relationship*, *Update_Twin*, *Update_Relationship*, *Delete_Twin*, *Delete_Relationships*.
 Thoses functions works asynchronously as they utilize queue for processing message.

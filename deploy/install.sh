@@ -1,4 +1,4 @@
-VERSION='v1.2.1'
+VERSION='v1.3.0'
 
 read -p "location ? [westeurope]: " location
 location=${location:-westeurope}

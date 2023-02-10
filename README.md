@@ -153,3 +153,4 @@ The Azure Digital Twin will prevent any deletion of a twin with a relationship. 
 
 * History-files container only hold the last file read. It's not an archive with all processed files.
 * As thoses functions are asynchronous, processing already started will continue even if an exception is raised.
+* As long as messages are present in poison queue processing will be considered fail. To run, those queue must be empty or non-existant.

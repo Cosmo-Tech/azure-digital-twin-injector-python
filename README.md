@@ -123,6 +123,33 @@ The results of this query resemble those of the previous one.
 
 6. Always check the queues in the Azure STorage Account linked to the DT Injector, to see if a poison queue has been created. If that is the case, the poison queue will contain all the messages that couldn’t successfully modify the ADT. 
 
+# How it runs
+
+This project contains a total of 13 functions. They interact as describe in the following schema:
+![image](.images/schema_global)
+
+This create the 6 functions *Create_Twin*, *Create_Relationship*, *Update_Twin*, *Update_Relationship*, *Delete_Twin*, *Delete_Relationships*.
+Thoses functions works asynchronously as they utilize queue for processing message.
+
+## Function behaviour
+
+### Create Twins and Relationships
+These create function use Azure python library function **"Upsert"** which create or replace a twin or relationships.
+
+### Update Twins and Relationships
+These update funciton use Azure python library function **"Update"** at which is given update operation base on input csv content. 
+
+- Each non-empty field is process as a add operation which create or replace the twin attribue.
+- Each empty field is process as a delete operation which remove the twin attribue.
+
+This function is not idempotent, trying to remove an already removed attribues will result in an exception.
+
+### Delete Twins and Relationships
+These delete function use Azure python library function **"Delete"** which remove a twin or relationships.
+
+The Azure Digital Twin will prevent any deletion of a twin with a relationship. Trying to do so will result in an Exception.
+
 # Technicalities
 
 * History-files container only hold the last file read. It's not an archive with all processed files.
+* As thoses functions are asynchronous, processing already started will continue even if an exception is raised.

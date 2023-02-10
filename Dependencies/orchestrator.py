@@ -84,7 +84,7 @@ class Orchestrator:
         except Exception as e:
             logger.exception(e)
             if req_body.get("callBackUri"):
-                General_Functions.do_callback(req_body.get("callBackUri"), e.__str__)
+                General_Functions.do_callback(req_body.get("callBackUri"), str(e))
             return func.HttpResponse("Message queue has been filled", status_code=500)
 
         if req_body.get("callBackUri"):

@@ -80,9 +80,64 @@ Prerequisites are the same as for the install by script.
 
 
 # How to run
+## Prepare csv files
+There's two file types: twins and relationships. Twin files and Relationship files keep the format throughout the three injector options (create, delete, update).
+
+### twin file format
+```
+$id, $metadata.$model, capacity
+fontaine, dtmi:contenant;1, 10
+bassin, dtmi:contenant;1, 1000
+pluie, dtmi:contenant;1, 0
+```
+
+#### mandatory fields
+- \$id: arbitraty identifier of the twin. use by ADT to index twins.
+- \$metadata.\$model: indicate twin model to be instanciated
+
+#### specificities
+to instanciate map for twin properties in csv file use the following (this only work for 1 level of depth):
+```
+$id, $metadata.$model, capacity, outputProperties.nbTap, outProperties.size
+fontaine, dtmi:contenant;2, 10, 6, 18
+```
+
+this will be transform and inserted as follow:
+```
+{
+    "$metadata": {
+        "$model": "dtmi:contenant;2"
+    }
+    "$id": "fontaine",
+    "capacity": 10,
+    "outputProperties": {
+        nbTap: 6,
+        size: 18
+    }
+}
+```
+
+### relationship file format
+```
+$sourceId, $targetId, $relationshipName, debitmax
+fontaine, bassin, coule, 2.3
+bassin, canalisation, coule, 4
+pluie, bassin, coule, 5
+```
+#### mandatory fields
+- $sourceId: id of the source twin
+- $targetId: id of the target twin
+- $relationshipName: indicate relationship name to instanciate
+
+#### specificities
+ADT need a relationshipId that is use for indexing relationship. The injector create an id as follow:
+`<$relationshipName>-<$sourceId>-<$targetId>` (i.e. `coule-fontaine-bassin`)
+
+
+## run injection
 1. In order to run the DT Injector, we need to get the `InjectorEntrypoint` url with default or master code.
 
-2. You should have already stored your input csv files in the correct Azure storage (depending on the action you want to perform):
+2. Then place your input csv files with the previously describe format in the correct Azure storage depending on the action you want to perform:
     - create-storage/create-twins
     - create-storage/create-relationships
     - update-storage/update-twins

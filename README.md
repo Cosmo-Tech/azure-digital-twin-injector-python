@@ -176,7 +176,7 @@ This query enables us to get the logs of a specified log level.
         "3" (for error level)
 The results of this query resemble those of the previous one. 
 
-6. Always check the queues in the Azure STorage Account linked to the DT Injector, to see if a poison queue has been created. If that is the case, the poison queue will contain all the messages that couldn’t successfully modify the ADT. 
+6. Always check the queues in the Azure Storage Account linked to the DT Injector, to see if a poison queue has been created. If that is the case, the poison queue will contain all the messages that couldn’t successfully modify the ADT. 
 
 # How it runs
 
@@ -187,6 +187,7 @@ This create the 6 functions *Create_Twin*, *Create_Relationship*, *Update_Twin*,
 Thoses functions works asynchronously as they utilize queue for processing message.
 
 ## Function behaviour
+At the begining of each Orchestrator the poison-queue is emptied.
 
 ### Create Twins and Relationships
 These create function use Azure python library function **"Upsert"** which create or replace a twin or relationships.
@@ -206,6 +207,6 @@ The Azure Digital Twin will prevent any deletion of a twin with a relationship. 
 
 # Technicalities
 
+* In case of failure to create update or delete, the message being process is re processed 4 time then it's moved to poison queue. That's an Azure standard behavior.
 * History-files container only hold the last file read. It's not an archive with all processed files.
 * As thoses functions are asynchronous, processing already started will continue even if an exception is raised.
-* As long as messages are present in poison queue processing will be considered fail. To run, those queue must be empty or non-existant.

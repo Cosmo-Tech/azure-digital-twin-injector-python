@@ -42,6 +42,10 @@ class Orchestrator:
         queue_client.message_encode_policy = BinaryBase64EncodePolicy()
 
         try:
+            # clean poison queue
+            poison_queue_client = QueueClient.from_connection_string(self.connection_string, f'{self.output_queue}-poison')
+            poison_queue_client.clear_messages()
+
             # list all the files in the input container
             logger.info(f'reading Azure storage {self.input_path} from {client_input.container_name}')
             files = General_Functions.ls_files(client_input, self.input_path, recursive=True)

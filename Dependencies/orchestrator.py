@@ -5,6 +5,7 @@ import requests
 from azure.storage.blob import BlobServiceClient
 from azure.storage.queue import QueueClient, BinaryBase64EncodePolicy
 import azure.functions as func
+import azure.core.exceptions as az_exceptions
 
 from ..Dependencies import General_Functions
 
@@ -45,7 +46,11 @@ class Orchestrator:
             # clean poison queue
             poison_queue_client = QueueClient.from_connection_string(self.connection_string, f'{self.output_queue}-poison')
             poison_queue_client.clear_messages()
+            logger.info("Poison queue emptied")
+        except az_exceptions.ResourceNotFoundError:
+            logger.info("No poison queue")
 
+        try:
             # list all the files in the input container
             logger.info(f'reading Azure storage {self.input_path} from {client_input.container_name}')
             files = General_Functions.ls_files(client_input, self.input_path, recursive=True)

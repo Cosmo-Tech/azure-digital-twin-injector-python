@@ -134,10 +134,8 @@ ADT need a relationshipId that is use for indexing relationship. The injector cr
 `<$relationshipName>-<$sourceId>-<$targetId>` (i.e. `coule-fontaine-bassin`)
 
 
-## run injection
-1. In order to run the DT Injector, we need to get the `InjectorEntrypoint` url with default or master code.
-
-2. Then place your input csv files with the previously describe format in the correct Azure storage depending on the action you want to perform:
+## Run injection
+1. Then place your input csv files with the previously describe format in the correct Azure storage depending on the action you want to perform:
     - create-storage/create-twins
     - create-storage/create-relationships
     - update-storage/update-twins
@@ -145,12 +143,14 @@ ADT need a relationshipId that is use for indexing relationship. The injector cr
     - delete-storage/delete-twins
     - delete-storage/delete-relationships
 
-3. After that, you need to send an HTTP request to the `InjectorEntrypoint` function Url that you retrieved with a tool that enables you to do that, like Postman for example.
-The body of the HTTP request should be empty but the URL as a parameter that you should change for each action we want to carry out (remove the code as it is extracted from the request)
+2. After that, you need to send an HTTP request to the `InjectorEntrypoint` function Url that you retrieved with a tool that enables you to do that, like Postman for example.
+The body of the HTTP request should be empty but the URL has a parameter that you should change for each action you want to carry out:
 ```
-POST https://{myfunc}.azurewebsites.net/api/orchestrators/{action}?code={mycode}
+POST https://{myfunc}.azurewebsites.net/api/orchestrators/{action}?code={myhostkey}
 ```
-The possible values for action are :
+Replace {myfunc} by the function app name.
+
+The possible values for {action} are :
 - `Create_Twins`
 - `Create_Relationships`
 - `Delete_Twins`
@@ -158,9 +158,11 @@ The possible values for action are :
 - `Update_Twins`
 - `Update_Relationships`
 
-4. You can check the result of the execution on ADT.
+Replace {myhostkey} by the function app host key, available in Azure Portal (Function > App keys > Host keys: _master or default)
 
-5. You can access the logs to debug or simply to have a record of the execution in Application Insights. Here are some useful KUSTO queries you can run : 
+3. You can check the result of the execution on the poison queue or directly on ADT.
+
+4. You can access the logs to debug or simply to have a record of the execution in Application Insights. Here are some useful KUSTO queries you can run : 
 - traces | where message contains "Dev Log" : this query enables us to get all the logs that have been written in the code of the DT Injector, these are mainly the information logs about a creation/update/deletion of a twin/relationship or errors related to the structure of the received http request.
 - traces | where customDimensions.["LogLevel"]==
         "Information"
@@ -176,7 +178,7 @@ This query enables us to get the logs of a specified log level.
         "3" (for error level)
 The results of this query resemble those of the previous one. 
 
-6. Always check the queues in the Azure Storage Account linked to the DT Injector, to see if a poison queue has been created. If that is the case, the poison queue will contain all the messages that couldn’t successfully modify the ADT. 
+5. Always check the queues in the Azure Storage Account linked to the DT Injector, to see if a poison queue has been created. If that is the case, the poison queue will contain all the messages that couldn’t successfully modify the ADT. 
 
 # How it runs
 

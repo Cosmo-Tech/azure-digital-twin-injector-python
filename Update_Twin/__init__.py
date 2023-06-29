@@ -18,19 +18,22 @@ def main(msg: func.QueueMessage):
     service_client = DigitalTwinsClient(url, credential)
     digital_twin_id = json_message["$id"]
 
-    patch = []
+    # manage map-like columns
     new_msg = copy.deepcopy(json_message)
-    for key, value in json_message.items():
-        if '.' in key:
-            map_split = key.split('.')
+    for j in json_message:
+        if '.' in j:
+            map_split = j.split('.')
             if map_split[0] not in new_msg:
                 new_msg[map_split[0]] = {}
-            new_msg[map_split[0]][map_split[1]] = value
+            new_msg[map_split[0]][map_split[1]] = json_message[j]
             new_msg.pop(j)
 
+    # create patch
+    patch = []
     for key, value in new_msg.items():
-        # can not update the id and metadata of the twin, and only updates the twin's properties that have not null values
+        # can not update the id and metadata of the twin
         if key != "$id" and key != "$metadata":
+            # only updates the twin's properties that have not null values
             if value is not None:
                 patch.append({"op": "add", "path": "/" + key, "value": value})
             else:
